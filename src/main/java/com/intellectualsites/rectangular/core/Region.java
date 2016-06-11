@@ -1,7 +1,6 @@
-package core;
+package com.intellectualsites.rectangular.core;
 
 import com.intellectualsites.rectangular.vector.Vector2;
-import com.sun.javafx.accessible.utils.Rect;
 
 public class Region {
 

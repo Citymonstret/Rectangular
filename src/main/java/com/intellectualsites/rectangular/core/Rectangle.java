@@ -1,4 +1,4 @@
-package core;
+package com.intellectualsites.rectangular.core;
 
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;

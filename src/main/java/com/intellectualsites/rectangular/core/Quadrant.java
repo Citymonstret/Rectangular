@@ -1,9 +1,7 @@
-package core;
+package com.intellectualsites.rectangular.core;
 
 import com.intellectualsites.rectangular.vector.Vector2;
-import com.intellectualsites.rectangular.vector.Vector2f;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
