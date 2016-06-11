@@ -1,0 +1,28 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+
+group = 'com.intellectualsites'
+version = '0.0.1'
+description = """Minecraft regional protection system"""
+
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile 'org.projectlombok:lombok:1.16.6'
+    compile name: 'spigot-1.9.4-R0.1-SNAPSHOT-latest'
+    compile name: 'BKCommonLib'
+    compile name: 'JSON_API'
+}
