@@ -53,7 +53,7 @@ public class Vector2 {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         return obj != null && obj instanceof Vector2 && equals((Vector2) obj);
     }
 
@@ -70,7 +70,7 @@ public class Vector2 {
         this.y = y;
     }
 
-    public int dot(Vector2 v2) {
+    public int dot(@NonNull final Vector2 v2) {
         return (x * v2.x) + (y * v2.y);
     }
 
@@ -102,13 +102,13 @@ public class Vector2 {
         return this;
     }
 
-    public int distanceSquared(Vector2 v2) {
+    public int distanceSquared(@NonNull final Vector2 v2) {
         int dx = v2.x - x;
         int dy = v2.y - y;
-        return (int)(dx * dx) + (dy * dy);
+        return (dx * dx) + (dy * dy);
     }
 
-    public int distance(Vector2 v2) {
+    public int distance(@NonNull final Vector2 v2) {
         return (int) Math.sqrt(distanceSquared(v2));
     }
 
@@ -121,6 +121,6 @@ public class Vector2 {
      */
     @Override
     public int hashCode() {
-        return 997 * ((int) x) ^ 991 * ((int) y);
+        return 997 *  x ^ 991 * y;
     }
 }

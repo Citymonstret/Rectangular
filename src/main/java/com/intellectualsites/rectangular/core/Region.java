@@ -1,14 +1,23 @@
 package com.intellectualsites.rectangular.core;
 
 import com.intellectualsites.rectangular.vector.Vector2;
+import lombok.Getter;
 
 public class Region {
 
+    @Getter
     private Rectangle boundingBox;
+
+    @Getter
     private Rectangle[] rectangles;
+
+    @Getter
     private Quadrant[] quadrants = new Quadrant[4];
+
+    @Getter
     private int width, height;
 
+    @Getter
     private float midX, midY;
 
     public Region() {
@@ -45,6 +54,15 @@ public class Region {
         // Calculate midpoints (for quadrants)
         this.midX = this.boundingBox.getMin().getX() + (width / 2);
         this.midY = this.boundingBox.getMax().getY() + (height / 2);
+
+        //
+        // TODO: Instructions below
+        //
+        // Make it so that each quadrant may contain
+        // its own quadrants, if there are more than N
+        // number of rectangles within the quadrant, to
+        // speedup the looping
+        //
 
         // First Quadrant
         {
