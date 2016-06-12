@@ -4,23 +4,34 @@ import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import lombok.Getter;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This manages each world, and its quadrants
+ *
+ * @author Citymonstret
+ */
 public class WorldManager {
 
     @Getter
     private final HashMap<String, WorldContainer> worldContainers = new HashMap<>();
 
-    public WorldManager() {
+
+    public WorldManager(Collection<String> worlds) {
+        for (String world : worlds) {
+            WorldContainer temp = new WorldContainer(world);
+            worldContainers.put(temp.getContainerID(), temp);
+        }
+        /*
+        Remove bukkit specific code
         for (World world : Bukkit.getWorlds()) {
             WorldContainer temporary = new WorldContainer(world.getName());
             worldContainers.put(temporary.getContainerID(), temporary);
-        }
+        }*/
     }
 
     public WorldContainer getWorldContainer(String worldName) {

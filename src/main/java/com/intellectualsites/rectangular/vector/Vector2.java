@@ -112,6 +112,7 @@ public class Vector2 {
         return (int) Math.sqrt(distanceSquared(v2));
     }
 
+    @Override
     public Vector2 clone() {
         return new Vector2(this);
     }

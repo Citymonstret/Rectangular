@@ -7,11 +7,20 @@ import org.polyjdbc.core.PolyJDBCBuilder;
 import org.polyjdbc.core.dialect.Dialect;
 import org.polyjdbc.core.dialect.DialectRegistry;
 
-@RequiredArgsConstructor
 public class RectangularDBMySQL extends RectangularDB {
 
     private final String database, user, password, host;
     private final int port;
+
+    public RectangularDBMySQL(String database, String user, String password,
+                              String host, int port, String prefix) {
+        super(prefix);
+        this.database = database;
+        this.user = user;
+        this.password = password;
+        this.host = host;
+        this.port = port;
+    }
 
     @Override
     protected PolyJDBC createConnection() {

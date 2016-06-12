@@ -48,6 +48,10 @@ public class RegionManager {
         }
     }
 
+    /**
+     * Add or hot-swap a region
+     * @param region Region to add, or update
+     */
     public void addRegion(Region region) {
         if (!idMapping.containsKey(region.getContainerID())) {
             idMapping.put(region.getContainerID(), region.getId());
@@ -62,6 +66,17 @@ public class RegionManager {
         }
     }
 
+    /**
+     * Check if a rectangle overlaps any regions
+     * in a given world
+     *
+     * @param world World in which the rectangle is located
+     * @param rectangle Rectangle to check for
+     *
+     * @return A set containing all the regions that the rectangle
+     * was overlapping with, which means that this will be empty if
+     * there was no overlapping
+     */
     public Set<Region> overlaps(String world, Rectangle rectangle) {
         // This will just make sure that we get all possible regions
         // As the min and the max might be in different world quadrants (unlikely)

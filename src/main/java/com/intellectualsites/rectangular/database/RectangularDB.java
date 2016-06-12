@@ -11,15 +11,17 @@ import org.polyjdbc.core.schema.model.Schema;
 @RequiredArgsConstructor
 public abstract class RectangularDB {
 
+    private final String prefix;
+
     /**
      * TODO: FIX THIS
      */
     public String getMainTableName() {
-        return "__rectangular";
+        return prefix + "regions";
     }
 
     public String getRectangleTableName() {
-        return "__rectangular_rectangles";
+        return prefix + "rectangles";
     }
 
     private PolyJDBC polyJDBC;

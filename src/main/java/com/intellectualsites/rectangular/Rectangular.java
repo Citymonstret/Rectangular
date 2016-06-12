@@ -6,6 +6,7 @@ import com.intellectualsites.rectangular.bukkit.RectangularPlugin;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.database.RectangularDBMySQL;
+import com.intellectualsites.rectangular.manager.ManagerProvider;
 import com.intellectualsites.rectangular.manager.RegionManager;
 import com.intellectualsites.rectangular.manager.WorldManager;
 import com.sun.javafx.accessible.utils.Rect;
@@ -16,10 +17,11 @@ public final class Rectangular {
 
     private static Rectangular rectangular;
 
-    public static void setup() throws IllegalAccessException {
+    public static void setup(ManagerProvider provider) throws IllegalAccessException {
         if (rectangular != null) {
             throw new IllegalAccessException("Cannot setup rectangular when already setup, duh");
         }
+        rectangular = new Rectangular(provider);
     }
 
     public static Rectangular get() {
@@ -32,7 +34,7 @@ public final class Rectangular {
     @Getter
     public WorldManager worldManager;
 
-    private Rectangular() {
+    private Rectangular(ManagerProvider provider) {
         rectangular = this;
 
         FileConfiguration coreConfiguration = new FileConfiguration(JavaPlugin.getPlugin(RectangularPlugin.class), "core.yml");
@@ -57,8 +59,8 @@ public final class Rectangular {
             coreConfiguration.save();
         }
 
+        // Yay
         ConfigurationNode dbNode = coreConfiguration.getNode("database");
-
         RectangularDB database = new RectangularDBMySQL(
                 dbNode.get("username", String.class),
                 dbNode.get("user", String.class),
@@ -71,7 +73,7 @@ public final class Rectangular {
             database.createSchema();
         }
 
-        this.worldManager = new WorldManager();
+        this.worldManager = provider.getWorldManager();
         this.regionManager = new RegionManager(worldManager, database);
     }
 
