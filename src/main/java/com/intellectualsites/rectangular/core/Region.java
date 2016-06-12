@@ -1,9 +1,10 @@
 package com.intellectualsites.rectangular.core;
 
+import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 
-public class Region {
+public class Region extends RegionContainer {
 
     @Getter
     private Rectangle boundingBox;
@@ -20,9 +21,26 @@ public class Region {
     @Getter
     private float midX, midY;
 
-    public Region() {
-        this.boundingBox = new Rectangle();
+    @Getter
+    private final int id;
+
+    @Getter
+    private final String owningContainer;
+
+    @Getter
+    private RegionData data;
+
+    public Region(int id, int level, String owningContainer) {
+        super(level, null);
+
+        // TODO: Load rectangles
         this.rectangles = new Rectangle[0];
+
+        this.id = id;
+        this.owningContainer = owningContainer;
+
+        // TODO: Load data
+        this.data = new RegionData();
     }
 
     private void compile() {
@@ -46,6 +64,7 @@ public class Region {
             }
         }
         this.boundingBox = new Rectangle(new Vector2(minX, minY), new Vector2(maxX, maxY));
+        super.getBounds().copyFrom(this.boundingBox); // Will update the region container
 
         // Calculate the width and height
         this.width = boundingBox.getMax().getX() - boundingBox.getMin().getX();
@@ -53,7 +72,7 @@ public class Region {
 
         // Calculate midpoints (for quadrants)
         this.midX = this.boundingBox.getMin().getX() + (width / 2);
-        this.midY = this.boundingBox.getMax().getY() + (height / 2);
+        this.midY = this.boundingBox.getMin().getY() + (height / 2);
 
         //
         // TODO: Instructions below
@@ -71,7 +90,7 @@ public class Region {
             Quadrant quadrant = new Quadrant(min,max);
             for (int i = 0; i < rectangles.length; i++) {
                 if (quadrant.overlaps(rectangles[i])) {
-                    quadrant.getRectangles().add(i);
+                    quadrant.getIds().add(i);
                 }
             }
             this.quadrants[0] = quadrant;
@@ -83,7 +102,7 @@ public class Region {
             Quadrant quadrant = new Quadrant(min,max);
             for (int i = 0; i < rectangles.length; i++) {
                 if (quadrant.overlaps(rectangles[i])) {
-                    quadrant.getRectangles().add(i);
+                    quadrant.getIds().add(i);
                 }
             }
             this.quadrants[1] = quadrant;
@@ -95,7 +114,7 @@ public class Region {
             Quadrant quadrant = new Quadrant(min,max);
             for (int i = 0; i < rectangles.length; i++) {
                 if (quadrant.overlaps(rectangles[i])) {
-                    quadrant.getRectangles().add(i);
+                    quadrant.getIds().add(i);
                 }
             }
             this.quadrants[2] = quadrant;
@@ -107,7 +126,7 @@ public class Region {
             Quadrant quadrant = new Quadrant(min,max);
             for (int i = 0; i < rectangles.length; i++) {
                 if (quadrant.overlaps(rectangles[i])) {
-                    quadrant.getRectangles().add(i);
+                    quadrant.getIds().add(i);
                 }
             }
             this.quadrants[3] = quadrant;
@@ -116,26 +135,18 @@ public class Region {
 
     public boolean isInRegion(Vector2 v2) {
         if (boundingBox.isInside(v2)) {
-            Quadrant quadrant;
-            if (v2.getX() > midX) {
-                if (v2.getY() > midY) {
-                    quadrant = quadrants[0];
-                } else {
-                    quadrant = quadrants[1];
-                }
-            } else {
-                if (v2.getY() < midY) {
-                    quadrant = quadrants[3];
-                } else {
-                    quadrant = quadrants[4];
-                }
-            }
-            for (int rectangleID : quadrant.getRectangles()) {
+            Quadrant quadrant = Quadrant.findQuadrant(quadrants, midX, midY, v2);
+            for (int rectangleID : quadrant.getIds()) {
                 if (rectangles[rectangleID].isInside(v2)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    @Override
+    public String getContainerID() {
+        return "r:" + id + ";l:" + getLevel();
     }
 }

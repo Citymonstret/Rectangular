@@ -39,4 +39,9 @@ public class Rectangle {
         }
         return coordinates;
     }
+
+    public void copyFrom(Rectangle boundingBox) {
+        this.min.set(boundingBox.getMin());
+        this.max.set(boundingBox.getMax());
+    }
 }
