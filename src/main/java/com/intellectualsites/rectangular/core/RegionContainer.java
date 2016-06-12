@@ -64,15 +64,22 @@ public abstract class RegionContainer {
         }
     }
 
-    public void compileQuadrants(final Set<Region> regions) {
-        for (Region region : regions) {
-            for (Quadrant quadrant : containerQuadrants) {
-                if (quadrant.overlaps(region.getBoundingBox())) {
-                    quadrant.getIds().add(region.getId());
-                }
-            }
-            regionIDs.add(region.getId());
+    public void compileQuadrants(final Region region) {
+        if (regionIDs.contains(region.getId())) {
+            return;
         }
+
+        for (Quadrant quadrant : containerQuadrants) {
+            if (quadrant.overlaps(region.getBoundingBox())) {
+                quadrant.getIds().add(region.getId());
+            }
+        }
+
+        regionIDs.add(region.getId());
+    }
+
+    public void compileQuadrants(final Set<Region> regions) {
+        regions.forEach(this::compileQuadrants);
     }
 
     public Quadrant getContainerQuadrant(Vector2 v2) {

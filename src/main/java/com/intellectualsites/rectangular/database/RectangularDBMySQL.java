@@ -10,7 +10,7 @@ import org.polyjdbc.core.dialect.DialectRegistry;
 @RequiredArgsConstructor
 public class RectangularDBMySQL extends RectangularDB {
 
-    private final String database, user, password;
+    private final String database, user, password, host;
     private final int port;
 
     @Override
@@ -21,7 +21,9 @@ public class RectangularDBMySQL extends RectangularDB {
         mysqlDataSource.setUser(user);
         mysqlDataSource.setPassword(password);
         mysqlDataSource.setPort(port);
+        mysqlDataSource.setServerName(host);
         return PolyJDBCBuilder.polyJDBC(dialect).connectingToDataSource(mysqlDataSource).build();
     }
+
 
 }

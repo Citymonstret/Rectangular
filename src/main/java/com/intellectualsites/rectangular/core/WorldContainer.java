@@ -2,7 +2,6 @@ package com.intellectualsites.rectangular.core;
 
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 public class WorldContainer extends RegionContainer {
 

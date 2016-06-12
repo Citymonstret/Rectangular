@@ -1,5 +1,6 @@
 package com.intellectualsites.rectangular.manager;
 
+import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import lombok.Getter;
@@ -40,8 +41,7 @@ public class WorldManager {
         WorldContainer container = getWorldContainer(worldName);
         Set<Region> set = new HashSet<>();
         for (int i : container.getRegionIDs()) {
-            // TODO: Wat
-            Region region = new RegionManager(this).getRegion(i);
+            Region region = Rectangular.get().getRegionManager().getRegion(i);
             set.add(region);
         }
         return set;
