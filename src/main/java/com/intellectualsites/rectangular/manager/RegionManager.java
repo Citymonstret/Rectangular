@@ -1,12 +1,15 @@
 package com.intellectualsites.rectangular.manager;
 
 import com.intellectualsites.rectangular.core.Quadrant;
+import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.RegionContainer;
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.vector.Vector2;
 
 import java.util.*;
+
+import static com.bergerkiller.bukkit.common.reflection.classes.BlockRef.id;
 
 public class RegionManager {
 
@@ -57,6 +60,31 @@ public class RegionManager {
         } else {
             regionMap.get(idMapping.get(region.getOwningContainer())).compileQuadrants(region);
         }
+    }
+
+    public Set<Region> overlaps(String world, Rectangle rectangle) {
+        // This will just make sure that we get all possible regions
+        // As the min and the max might be in different world quadrants (unlikely)
+        Quadrant minQ = worldManager.getWorldContainer(world).getContainerQuadrant(rectangle.getMin());
+        Quadrant maxQ = worldManager.getWorldContainer(world).getContainerQuadrant(rectangle.getMax());
+
+        Set<Region> regions = new HashSet<>();
+        List<Integer> toCheck = new ArrayList<>();
+
+        // Make sure that every region is only checked once
+        minQ.getIds().stream().filter(i -> !toCheck.contains(i)).forEach(toCheck::add);
+        maxQ.getIds().stream().filter(i -> !toCheck.contains(i)).forEach(toCheck::add);
+
+        // A very simple overlap check
+        for (int i : toCheck) {
+            Region temp = getRegion(i);
+            if (temp.getBoundingBox().overlaps(rectangle)) {
+                regions.add(temp);
+            }
+        }
+
+        // Yay
+        return regions;
     }
 
     public Region getHighestLevelRegion(String world, Vector2 vector2) {

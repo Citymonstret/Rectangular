@@ -18,6 +18,9 @@ repositories {
     flatDir {
         dirs 'libs'
     }
+    maven {
+        url 'http://maven.sk89q.com/artifactory/repo'
+    }
 }
 
 dependencies {
