@@ -2,6 +2,7 @@ package com.intellectualsites.rectangular.manager;
 
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
@@ -11,6 +12,7 @@ import java.util.Set;
 
 public class WorldManager {
 
+    @Getter
     private final HashMap<String, WorldContainer> worldContainers = new HashMap<>();
 
     public WorldManager() {
@@ -38,8 +40,8 @@ public class WorldManager {
         WorldContainer container = getWorldContainer(worldName);
         Set<Region> set = new HashSet<>();
         for (int i : container.getRegionIDs()) {
-            // TODO: Load xd
-            Region region = new Region(i, container.getLevel() + 1, worldName);
+            // TODO: Wat
+            Region region = new RegionManager(this).getRegion(i);
             set.add(region);
         }
         return set;

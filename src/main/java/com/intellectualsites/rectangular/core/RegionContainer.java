@@ -62,8 +62,6 @@ public abstract class RegionContainer {
             Quadrant quadrant = new Quadrant(min,max);
             this.containerQuadrants[3] = quadrant;
         }
-
-        // TODO: Load in regions
     }
 
     public void compileQuadrants(final Set<Region> regions) {
@@ -73,6 +71,7 @@ public abstract class RegionContainer {
                     quadrant.getIds().add(region.getId());
                 }
             }
+            regionIDs.add(region.getId());
         }
     }
 
