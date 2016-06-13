@@ -4,6 +4,8 @@ import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 
+import java.util.Collection;
+
 public class Region extends RegionContainer {
 
     @Getter
@@ -33,9 +35,6 @@ public class Region extends RegionContainer {
     public Region(int id, int level, String owningContainer) {
         super(level, null);
 
-        // TODO: Load rectangles
-        this.rectangles = new Rectangle[0];
-
         this.id = id;
         this.owningContainer = owningContainer;
 
@@ -43,7 +42,11 @@ public class Region extends RegionContainer {
         this.data = new RegionData();
     }
 
-    private void compile() {
+    public void setRectangles(Collection<Rectangle> rectangles) {
+        this.rectangles = rectangles.toArray(new Rectangle[rectangles.size()]);
+    }
+
+    public void compile() {
         // Initial values are just crayyyy
         int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE,
                 maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE;

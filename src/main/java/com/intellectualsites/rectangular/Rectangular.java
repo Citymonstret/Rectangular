@@ -32,6 +32,9 @@ public final class Rectangular {
     @Getter
     public WorldManager worldManager;
 
+    @Getter
+    private RectangularDB database;
+
     private Rectangular(ServiceManager provider) {
         rectangular = this;
 
@@ -76,8 +79,11 @@ public final class Rectangular {
             database.createSchema();
         }
 
+        this.database = database;
         this.worldManager = provider.getWorldManager();
         this.regionManager = new RegionManager(worldManager, database);
+
+        provider.runAsync(() -> regionManager.load());
     }
 
 }

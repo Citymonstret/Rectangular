@@ -6,4 +6,6 @@ public interface ServiceManager {
 
     void shutdown(String reason);
 
+    void runAsync(Runnable r);
+
 }

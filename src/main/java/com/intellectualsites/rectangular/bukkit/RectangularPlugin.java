@@ -40,4 +40,9 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager {
         getLogger().severe("Shutting down: " + reason);
         getServer().getPluginManager().disablePlugin(this);
     }
+
+    @Override
+    public void runAsync(Runnable r) {
+        getServer().getScheduler().runTaskAsynchronously(this, r);
+    }
 }

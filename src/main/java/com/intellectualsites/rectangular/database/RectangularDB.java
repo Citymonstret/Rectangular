@@ -1,12 +1,23 @@
 package com.intellectualsites.rectangular.database;
 
+import com.intellectualsites.rectangular.core.Rectangle;
+import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.polyjdbc.core.PolyJDBC;
 import org.polyjdbc.core.dialect.Dialect;
+import org.polyjdbc.core.query.SelectQuery;
+import org.polyjdbc.core.query.mapper.ObjectMapper;
 import org.polyjdbc.core.schema.SchemaInspector;
 import org.polyjdbc.core.schema.SchemaManager;
 import org.polyjdbc.core.schema.model.Schema;
+import org.w3c.dom.css.Rect;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public abstract class RectangularDB {
@@ -92,5 +103,20 @@ public abstract class RectangularDB {
             getPolyJDBC().close(inspector);
         }
         return exists;
+    }
+
+    public Set<Rectangle> loadRectangles() {
+        SelectQuery query = getPolyJDBC().query().selectAll().from(getRectangleTableName());
+        return getPolyJDBC().simpleQueryRunner().querySet(query, rectangleMapper);
+    }
+
+    private final ObjectMapper<Rectangle> rectangleMapper = resultSet -> new Rectangle(resultSet.getInt("region_region_id"),
+            new Vector2(resultSet.getInt("minX"), resultSet.getInt("minY")), new Vector2(resultSet.getInt("maxX"), resultSet.getInt("maxY")));
+
+    private final ObjectMapper<Region> regionMapper = resultSet -> new Region(resultSet.getInt("region_id"), 1, resultSet.getString("container_id"));
+
+    public Set<Region> loadRegions() {
+        SelectQuery query = getPolyJDBC().query().select().from(getMainTableName());
+        return getPolyJDBC().simpleQueryRunner().querySet(query, regionMapper);
     }
 }

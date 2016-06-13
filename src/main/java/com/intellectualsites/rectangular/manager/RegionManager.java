@@ -1,13 +1,18 @@
 package com.intellectualsites.rectangular.manager;
 
+import com.intellectualsites.rectangular.Rectangular;
+import com.intellectualsites.rectangular.bukkit.RectangularPlugin;
 import com.intellectualsites.rectangular.core.Quadrant;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.RegionContainer;
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.vector.Vector2;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static com.bergerkiller.bukkit.common.reflection.classes.BlockRef.id;
 
@@ -15,15 +20,21 @@ public class RegionManager {
 
     private WorldManager worldManager;
 
-    private final Map<String, Integer> idMapping = new HashMap<>();
-    private final Map<Integer, Region> regionMap = new HashMap<>();
-    private final Map<Integer, Set<Integer>> layerMap = new HashMap<>();
+    private final Map<String, Integer> idMapping = new ConcurrentHashMap<>();
+    private final Map<Integer, Region> regionMap = new ConcurrentHashMap<>();
 
     public RegionManager(WorldManager worldManager, RectangularDB database) {
         this.worldManager = worldManager;
+    }
 
-        Set<Region> regions = new HashSet<>(); // TODO: Load
+    public void load() {
+        Set<Rectangle> temp = Rectangular.get().getDatabase().loadRectangles();
+        Set<Region> regions = Rectangular.get().getDatabase().loadRegions();
+
         for (Region region : regions) {
+            region.setRectangles(temp.stream()
+                    .filter(r -> r.getId() == region.getId()).collect(Collectors.toSet()));
+            region.compile();
             regionMap.put(region.getId(), region);
             idMapping.put(region.getContainerID(), region.getId());
         }
@@ -46,6 +57,8 @@ public class RegionManager {
         for (Map.Entry<RegionContainer, Set<Region>> entry : containerMapping.entrySet()) {
             entry.getKey().compileQuadrants(entry.getValue());
         }
+
+        JavaPlugin.getPlugin(RectangularPlugin.class).getLogger().info("Finished loading all regions!");
     }
 
     /**

@@ -13,6 +13,15 @@ public class Rectangle {
     @Getter
     private final Vector2 min, max;
 
+    @Getter
+    private int id;
+
+    public Rectangle(int id, Vector2 min, Vector2 max) {
+        this.id = id;
+        this.min = min;
+        this.max = max;
+    }
+
     public Rectangle() {
         this(new Vector2(), new Vector2());
     }
