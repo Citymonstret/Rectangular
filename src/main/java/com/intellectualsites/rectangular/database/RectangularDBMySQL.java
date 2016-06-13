@@ -26,11 +26,9 @@ public class RectangularDBMySQL extends RectangularDB {
     protected PolyJDBC createConnection() {
         Dialect dialect = DialectRegistry.MYSQL.getDialect();
         MysqlDataSource mysqlDataSource = new MysqlDataSource();
-        mysqlDataSource.setDatabaseName(database);
+        mysqlDataSource.setURL("jdbc:mysql://" + host + ":" + port + "/" + database);
         mysqlDataSource.setUser(user);
         mysqlDataSource.setPassword(password);
-        mysqlDataSource.setPort(port);
-        mysqlDataSource.setServerName(host);
         return PolyJDBCBuilder.polyJDBC(dialect).connectingToDataSource(mysqlDataSource).build();
     }
 

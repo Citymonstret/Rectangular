@@ -1,0 +1,9 @@
+name: Rectangular
+version: 0.0.1
+author: Citymonstret
+main: com.intellectualsites.rectangular.bukkit.RectangularPlugin
+depend: [BKCommonLib]
+commands:
+  rectangular:
+    aliases: [rect, r]
+    description: The main command for the rectangular plugin

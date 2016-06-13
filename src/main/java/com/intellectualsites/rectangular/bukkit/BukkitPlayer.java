@@ -27,4 +27,14 @@ public class BukkitPlayer implements RectangularPlayer {
         return player.getUniqueId();
     }
 
+    @Override
+    public boolean isOp() {
+        return player.isOp();
+    }
+
+    @Override
+    public boolean hasPermission(String permissionNode) {
+        return player.hasPermission(permissionNode);
+    }
+
 }

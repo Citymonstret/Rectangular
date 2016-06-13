@@ -8,4 +8,8 @@ public interface RectangularPlayer {
 
     int getId();
 
+    boolean isOp();
+
+    boolean hasPermission(String permissionNode);
+
 }

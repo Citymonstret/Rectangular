@@ -13,9 +13,6 @@ public abstract class RectangularDB {
 
     private final String prefix;
 
-    /**
-     * TODO: FIX THIS
-     */
     public String getMainTableName() {
         return prefix + "regions";
     }
@@ -33,6 +30,18 @@ public abstract class RectangularDB {
         return polyJDBC;
     }
 
+    public boolean testConnection() {
+        try {
+            PolyJDBC jdbc = getPolyJDBC();
+            if (jdbc == null) {
+                return false;
+            }
+        } catch (final Exception e) {
+            return false;
+        }
+        return true;
+    }
+
     protected abstract PolyJDBC createConnection();
 
     public void createSchema() {
@@ -45,8 +54,7 @@ public abstract class RectangularDB {
             Schema schema = new Schema(polyJDBC.dialect());
             schema.addRelation(getMainTableName())
                     .withAttribute().longAttr("region_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
-                    .withAttribute().string("name").withMaxLength(50).notNull().unique().and()
-                    .withAttribute().string("owner").withMaxLength(48).notNull().withDefaultValue("__SERVER__").and()
+                    .withAttribute().string("owner").withMaxLength(48).notNull().and()
                     .primaryKey("pk_" + getMainTableName()).using("region_id").and().build();
             schema.addRelation(getRectangleTableName())
                     .withAttribute().longAttr("rectangle_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
@@ -55,6 +63,7 @@ public abstract class RectangularDB {
                     .withAttribute().integer("maxX").withDefaultValue(0).and()
                     .withAttribute().integer("minY").withDefaultValue(0).and()
                     .withAttribute().integer("maxY").withDefaultValue(0).and()
+                    .primaryKey("pk_" + getRectangleTableName()).using("rectangle_id").and()
                     .build();
             schemaManager.create(schema);
         } finally {

@@ -1,7 +1,9 @@
 package com.intellectualsites.rectangular.manager;
 
-public interface ManagerProvider {
+public interface ServiceManager {
 
     WorldManager getWorldManager();
+
+    void shutdown(String reason);
 
 }
