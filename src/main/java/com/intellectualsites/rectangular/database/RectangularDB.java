@@ -14,11 +14,15 @@ public abstract class RectangularDB {
     private final String prefix;
 
     public String getMainTableName() {
-        return prefix + "regions";
+        return prefix + "region";
     }
 
     public String getRectangleTableName() {
-        return prefix + "rectangles";
+        return prefix + "rectangle";
+    }
+
+    public String getRegionMetaTableName() {
+        return prefix + "region_meta";
     }
 
     private PolyJDBC polyJDBC;
@@ -53,17 +57,24 @@ public abstract class RectangularDB {
             schemaManager = getPolyJDBC().schemaManager();
             Schema schema = new Schema(polyJDBC.dialect());
             schema.addRelation(getMainTableName())
-                    .withAttribute().longAttr("region_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
-                    .withAttribute().string("owner").withMaxLength(48).notNull().and()
+                    .withAttribute().integer("region_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
+                    .withAttribute().string("container_id").notNull().withMaxLength(32).and()
                     .primaryKey("pk_" + getMainTableName()).using("region_id").and().build();
             schema.addRelation(getRectangleTableName())
-                    .withAttribute().longAttr("rectangle_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
-                    .withAttribute().longAttr("region_region_id").notNull().and()
+                    .withAttribute().integer("rectangle_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
+                    .withAttribute().integer("region_region_id").notNull().and()
                     .withAttribute().integer("minX").withDefaultValue(0).and()
                     .withAttribute().integer("maxX").withDefaultValue(0).and()
                     .withAttribute().integer("minY").withDefaultValue(0).and()
                     .withAttribute().integer("maxY").withDefaultValue(0).and()
                     .primaryKey("pk_" + getRectangleTableName()).using("rectangle_id").and()
+                    .build();
+            schema.addRelation(getRegionMetaTableName())
+                    .withAttribute().integer("meta_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
+                    .withAttribute().integer("region_region_id").notNull().and()
+                    .withAttribute().string("owner").notNull().withDefaultValue("__SERVER__").withMaxLength(48).and()
+                    .withAttribute().text("data").notNull().withDefaultValue("").and()
+                    .primaryKey("pk_" + getRegionMetaTableName()).using("meta_id").and()
                     .build();
             schemaManager.create(schema);
         } finally {
