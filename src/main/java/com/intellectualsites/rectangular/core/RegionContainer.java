@@ -25,15 +25,21 @@ public abstract class RegionContainer {
 
     public RegionContainer(final int level, final Rectangle bounds) {
         this.level = level;
-        this.bounds = bounds;
+        if (bounds == null) {
+            this.bounds = new Rectangle();
+        } else {
+            this.bounds = bounds;
+        }
+    }
 
+    public void compileRegionContainer() {
         width = bounds.getMax().getX() - bounds.getMin().getX();
         height = bounds.getMax().getY() - bounds.getMin().getY();
 
         midX = this.bounds.getMin().getX() + (width / 2);
         midY = this.bounds.getMin().getY() + (height / 2);
-        
-                
+
+
         // First Quadrant
         {
             Vector2 min = new Vector2((int) midX, (int) midY);

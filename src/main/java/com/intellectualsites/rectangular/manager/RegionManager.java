@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.bergerkiller.bukkit.common.reflection.classes.BlockRef.id;
@@ -58,7 +59,11 @@ public class RegionManager {
             entry.getKey().compileQuadrants(entry.getValue());
         }
 
-        JavaPlugin.getPlugin(RectangularPlugin.class).getLogger().info("Finished loading all regions!");
+        // tc == Temporary
+        Logger logger = JavaPlugin.getPlugin(RectangularPlugin.class).getLogger();
+        logger.info("Finished loading!");
+        logger.info("Loaded " + temp.size() + " rectangles, making " + regions.size() + " regions!");
+        // -tc == End of Temporary
     }
 
     /**

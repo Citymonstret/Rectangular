@@ -11,6 +11,7 @@ public class WorldContainer extends RegionContainer {
     public WorldContainer(String worldName) {
         super(0, new Rectangle(new Vector2(Integer.MIN_VALUE, Integer.MIN_VALUE), new Vector2(Integer.MAX_VALUE, Integer.MAX_VALUE)));
         this.worldName = worldName;
+        this.compileRegionContainer();
     }
 
     @Override
