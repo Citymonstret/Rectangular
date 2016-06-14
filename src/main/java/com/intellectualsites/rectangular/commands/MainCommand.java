@@ -53,10 +53,10 @@ public class MainCommand implements CommandExecutor {
         }
 
         if (subCommand == null) {
-            // TODO: Send no such command msg
+            rectangularPlayer.sendMessage("@error.no_such_command");
         } else {
             if (!subCommand.hasPermission(rectangularPlayer, arguments)) {
-                // TODO: Send no permission msg
+                rectangularPlayer.sendMessage("@error.no_permission");
             } else {
                 subCommand.execute(rectangularPlayer, arguments);
             }

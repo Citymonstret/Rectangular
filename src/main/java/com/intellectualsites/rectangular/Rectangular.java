@@ -52,7 +52,7 @@ public final class Rectangular {
             database.set("port", 3306);
             database.setHeader("host", "The mysql server address");
             database.set("host", "localhost");
-            database.setHeader("database", "The database name");
+            database.setHeader("database", "The mysql database name");
             database.set("database", "rectangular");
             database.setHeader("prefix", "The table prefix");
             database.set("prefix", "rect__");

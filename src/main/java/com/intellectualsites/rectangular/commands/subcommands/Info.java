@@ -15,7 +15,7 @@ public class Info extends SubCommand {
 
     @Override
     public void execute(RectangularPlayer player, List<String> arguments) {
-        if (player.isInRegion()) {
+        if (!player.isInRegion()) {
             player.sendMessage("@error.not_in_region");
         } else {
             Region region = player.getRegion();
