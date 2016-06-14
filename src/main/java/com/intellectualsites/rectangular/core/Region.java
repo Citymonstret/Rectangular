@@ -3,6 +3,7 @@ package com.intellectualsites.rectangular.core;
 import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collection;
 
@@ -29,6 +30,7 @@ public class Region extends RegionContainer {
     @Getter
     private final String owningContainer;
 
+    @Setter
     @Getter
     private RegionData data;
 
@@ -37,9 +39,6 @@ public class Region extends RegionContainer {
 
         this.id = id;
         this.owningContainer = owningContainer;
-
-        // TODO: Load data
-        this.data = new RegionData();
     }
 
     public void setRectangles(Collection<Rectangle> rectangles) {

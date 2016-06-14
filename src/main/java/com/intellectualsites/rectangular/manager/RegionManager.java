@@ -6,6 +6,7 @@ import com.intellectualsites.rectangular.core.Quadrant;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.RegionContainer;
+import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.vector.Vector2;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,6 +32,7 @@ public class RegionManager {
     public void load() {
         Set<Rectangle> temp = Rectangular.get().getDatabase().loadRectangles();
         Set<Region> regions = Rectangular.get().getDatabase().loadRegions();
+        Set<RegionData> regionDatas = Rectangular.get().getDatabase().loadRegionData();
 
         for (Region region : regions) {
             region.setRectangles(temp.stream()
@@ -57,6 +59,11 @@ public class RegionManager {
 
         for (Map.Entry<RegionContainer, Set<Region>> entry : containerMapping.entrySet()) {
             entry.getKey().compileQuadrants(entry.getValue());
+        }
+
+        // Yay! <3
+        for (RegionData data : regionDatas) {
+            getRegion(data.getRegionID()).setData(data);
         }
 
         // tc == Temporary

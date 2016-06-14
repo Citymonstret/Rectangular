@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RegionData {
@@ -41,6 +39,9 @@ public class RegionData {
     }
 
     @Getter
+    private final int regionID;
+
+    @Getter
     private String owner;
 
     private Map<DataType, Map<String, DataEntry>> dataEntries = new ConcurrentHashMap<>();
@@ -50,7 +51,8 @@ public class RegionData {
         }
     }
 
-    public RegionData(String owner, String packedData) {
+    public RegionData(int regionID, String owner, String packedData) {
+        this.regionID = regionID;
         this.owner = owner;
         String[] parts = packedData.split(";");
         for (String s : parts) {
@@ -76,6 +78,10 @@ public class RegionData {
 
     public DataEntry getDataEntry(String key) {
         return getDataEntry(getDataType(key), key);
+    }
+
+    public DataEntry getDataEntryFromStripped(DataType type, String key) {
+        return dataEntries.get(type).get(type.getKey() + key);
     }
 
     public String getPackedData() {

@@ -2,6 +2,7 @@ package com.intellectualsites.rectangular.database;
 
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -68,26 +69,32 @@ public abstract class RectangularDB {
             schemaManager = getPolyJDBC().schemaManager();
             Schema schema = new Schema(polyJDBC.dialect());
             schema.addRelation(getMainTableName())
-                    .withAttribute().integer("region_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
+                    .withAttribute().integer("region_id")
+                    .withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
                     .withAttribute().string("container_id").notNull().withMaxLength(32).and()
                     .primaryKey("pk_" + getMainTableName()).using("region_id").and().build();
             schema.addRelation(getRectangleTableName())
-                    .withAttribute().integer("rectangle_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
+                    .withAttribute().integer("rectangle_id")
+                    .withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
                     .withAttribute().integer("region_region_id").and()
                     .withAttribute().integer("minX").withDefaultValue(0).and()
                     .withAttribute().integer("maxX").withDefaultValue(0).and()
                     .withAttribute().integer("minY").withDefaultValue(0).and()
                     .withAttribute().integer("maxY").withDefaultValue(0).and()
                     .primaryKey("pk_" + getRectangleTableName()).using("rectangle_id").and()
-                    .foreignKey("fk_" + getRectangleTableName()).on("region_region_id").references(getMainTableName(), "region_id").and()
+                    .foreignKey("fk_" + getRectangleTableName()).on("region_region_id")
+                    .references(getMainTableName(), "region_id").and()
                     .build();
             schema.addRelation(getRegionMetaTableName())
-                    .withAttribute().integer("meta_id").withAdditionalModifiers("AUTO_INCREMENT").notNull().and()
+                    .withAttribute().integer("meta_id").withAdditionalModifiers("AUTO_INCREMENT")
+                    .notNull().and()
                     .withAttribute().integer("region_region_id").and()
-                    .withAttribute().string("owner").notNull().withDefaultValue("__SERVER__").withMaxLength(48).and()
+                    .withAttribute().string("owner").notNull().withDefaultValue("__SERVER__")
+                    .withMaxLength(48).and()
                     .withAttribute().text("data").notNull().and()
                     .primaryKey("pk_" + getRegionMetaTableName()).using("meta_id").and()
-                    .foreignKey("fk_" + getRegionMetaTableName()).on("region_region_id").references(getMainTableName(), "region_id").and()
+                    .foreignKey("fk_" + getRegionMetaTableName()).on("region_region_id")
+                    .references(getMainTableName(), "region_id").and()
                     .build();
             schemaManager.create(schema);
         } finally {
@@ -112,10 +119,22 @@ public abstract class RectangularDB {
         return getPolyJDBC().simpleQueryRunner().querySet(query, rectangleMapper);
     }
 
-    private final ObjectMapper<Rectangle> rectangleMapper = resultSet -> new Rectangle(resultSet.getInt("region_region_id"),
-            new Vector2(resultSet.getInt("minX"), resultSet.getInt("minY")), new Vector2(resultSet.getInt("maxX"), resultSet.getInt("maxY")));
+    private final ObjectMapper<Rectangle> rectangleMapper = resultSet ->
+            new Rectangle(resultSet.getInt("region_region_id"),
+            new Vector2(resultSet.getInt("minX"), resultSet.getInt("minY")),
+                    new Vector2(resultSet.getInt("maxX"), resultSet.getInt("maxY")));
 
-    private final ObjectMapper<Region> regionMapper = resultSet -> new Region(resultSet.getInt("region_id"), 1, resultSet.getString("container_id"));
+    private final ObjectMapper<Region> regionMapper = resultSet ->
+            new Region(resultSet.getInt("region_id"), 1, resultSet.getString("container_id"));
+
+    private final ObjectMapper<RegionData> regionDataMapper = resultSet ->
+            new RegionData(resultSet.getInt("region_region_id"),
+                    resultSet.getString("owner"), resultSet.getString("data"));
+
+    public Set<RegionData> loadRegionData() {
+        SelectQuery query = getPolyJDBC().query().selectAll().from(getRegionMetaTableName());
+        return getPolyJDBC().simpleQueryRunner().querySet(query, regionDataMapper);
+    }
 
     public Set<Region> loadRegions() {
         SelectQuery query = getPolyJDBC().query().selectAll().from(getMainTableName());
