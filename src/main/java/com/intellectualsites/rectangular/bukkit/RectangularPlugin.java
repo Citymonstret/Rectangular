@@ -3,6 +3,7 @@ package com.intellectualsites.rectangular.bukkit;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.commands.MainCommand;
 import com.intellectualsites.rectangular.commands.SubCommand;
+import com.intellectualsites.rectangular.commands.subcommands.Info;
 import com.intellectualsites.rectangular.manager.ServiceManager;
 import com.intellectualsites.rectangular.manager.WorldManager;
 import org.bukkit.Bukkit;
@@ -15,12 +16,16 @@ import java.util.Set;
 
 public class RectangularPlugin extends JavaPlugin implements ServiceManager {
 
+    private void setupCommands() {
+        List<SubCommand> subCommands = new ArrayList<>();
+        subCommands.add(new Info());
+        getCommand("rectangular").setExecutor(new MainCommand(subCommands));
+    }
+
     @Override
     public void onEnable() {
+        this.setupCommands();
 
-        List<SubCommand> subCommands = new ArrayList<>();
-
-        getCommand("rectangular").setExecutor(new MainCommand(subCommands));
         try {
             Rectangular.setup(this);
         } catch (IllegalAccessException e) {

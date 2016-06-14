@@ -15,7 +15,7 @@ public abstract class SubCommand {
     @Getter
     private final List<String> aliases;
 
-    abstract void execute(RectangularPlayer player, List<String> arguments);
+    public abstract void execute(RectangularPlayer player, List<String> arguments);
 
     public boolean hasPermission(RectangularPlayer player, List<String> arguments) {
         return player.isOp() ||

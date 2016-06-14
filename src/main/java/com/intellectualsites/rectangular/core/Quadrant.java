@@ -33,4 +33,8 @@ public class Quadrant extends Rectangle {
         }
         return quadrant;
     }
+
+    public boolean isEmpty() {
+        return ids.isEmpty();
+    }
 }

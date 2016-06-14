@@ -122,6 +122,9 @@ public class RegionManager {
 
     public Region getHighestLevelRegion(String world, Vector2 vector2) {
         Quadrant quadrant =  worldManager.getWorldContainer(world).getContainerQuadrant(vector2);
+        if (quadrant == null || quadrant.isEmpty()) {
+            return null;
+        }
         for (int id : quadrant.getIds()) {
             if (regionMap.get(id).isInRegion(vector2)) {
                 return regionMap.get(id);
