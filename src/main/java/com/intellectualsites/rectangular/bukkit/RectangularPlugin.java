@@ -1,6 +1,7 @@
 package com.intellectualsites.rectangular.bukkit;
 
 import com.intellectualsites.rectangular.Rectangular;
+import com.intellectualsites.rectangular.bukkit.listener.PlayerListener;
 import com.intellectualsites.rectangular.commands.MainCommand;
 import com.intellectualsites.rectangular.commands.SubCommand;
 import com.intellectualsites.rectangular.commands.subcommands.Info;
@@ -29,12 +30,11 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager {
     @Override
     public void onEnable() {
         this.setupCommands();
-
+        this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getScheduler().runTaskTimer(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 BukkitPlayer bukkitPlayer = BukkitUtil.getPlayer(player);
                 bukkitPlayer.deleteIndicators();
-
                 if (bukkitPlayer.isInRegion()) {
                     Region r = bukkitPlayer.getRegion();
                     for (Rectangle re : r.getRectangles()) {
@@ -48,7 +48,6 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager {
                 }
             }
         }, 0L, 5L);
-
         try {
             Rectangular.setup(this);
         } catch (IllegalAccessException e) {

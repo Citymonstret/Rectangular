@@ -32,4 +32,6 @@ public interface RectangularPlayer {
     WorldContainer getWorldObject();
 
     void deleteIndicators();
+
+    PlayerEventObserver getEventObserver();
 }

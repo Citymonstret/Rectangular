@@ -3,6 +3,7 @@ package com.intellectualsites.rectangular.bukkit;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
+import com.intellectualsites.rectangular.player.PlayerEventObserver;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 import lombok.Getter;
 import net.minecraft.server.v1_10_R1.*;
@@ -28,11 +29,17 @@ public class BukkitPlayer implements RectangularPlayer {
     @Getter
     private final Player player;
 
+    @Getter
+    private final PlayerEventObserver eventObserver;
+
     private Region topLevelRegion;
+
+    private boolean regionFetched = false;
 
     public BukkitPlayer(Player player) {
         this.id = idPool++;
         this.player = player;
+        this.eventObserver = new PlayerEventObserver(this);
     }
 
     @Override
@@ -57,20 +64,22 @@ public class BukkitPlayer implements RectangularPlayer {
 
     @Override
     public Region getRegion() {
-        // TODO: Add caching! (Update on events)
-        // if (topLevelRegion == null) {
-        //     resetRegionCache(); // Will force fetch it
-        // }
-        // return topLevelRegion;
-        resetRegionCache();
+        if (!regionFetched) {
+            regionFetched = true;
+            resetRegionCache();
+        }
         return topLevelRegion; // TODO: FIX!
     }
 
     @Override
     public void resetRegionCache() {
+        Region old = topLevelRegion;
         topLevelRegion = Rectangular.get().getRegionManager().
                 getHighestLevelRegion(getWorld(),
                         BukkitUtil.locationToVector(player.getLocation()));
+        if (topLevelRegion != null && topLevelRegion != old) {
+            getEventObserver().onPlayerEnterRegion();
+        }
     }
 
     @Override
