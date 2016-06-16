@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class Quadrant extends Rectangle {
 
@@ -26,9 +25,9 @@ public class Quadrant extends Rectangle {
             }
         } else {
             if (v2.getY() < midY) {
-                quadrant = quadrants[3];
+                quadrant = quadrants[2];
             } else {
-                quadrant = quadrants[4];
+                quadrant = quadrants[3];
             }
         }
         return quadrant;

@@ -2,6 +2,7 @@ package com.intellectualsites.rectangular.core;
 
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +76,15 @@ public abstract class RegionContainer {
             return;
         }
 
-        for (Quadrant quadrant : containerQuadrants) {
+        Bukkit.broadcastMessage("Trying to see if the region fits into the quadrant: " + region.getId());
+        Bukkit.broadcastMessage("Region bounding box: " + region.getBoundingBox().getMin().toString());
+
+        for (int i = 0; i < containerQuadrants.length; i++) {
+            Quadrant quadrant = containerQuadrants[i];
+            Bukkit.broadcastMessage("Quadrant bounding box: " + quadrant.toString());
             if (quadrant.overlaps(region.getBoundingBox())) {
                 quadrant.getIds().add(region.getId());
+                Bukkit.broadcastMessage("Added region " + region.getId() + " to quadrant: " + i);
             }
         }
 

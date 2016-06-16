@@ -9,14 +9,13 @@ import com.intellectualsites.rectangular.core.RegionContainer;
 import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.vector.Vector2;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static com.bergerkiller.bukkit.common.reflection.classes.BlockRef.id;
 
 public class RegionManager {
 
@@ -42,23 +41,29 @@ public class RegionManager {
             idMapping.put(region.getContainerID(), region.getId());
         }
 
-        HashMap<RegionContainer, Set<Region>> containerMapping = new HashMap<>();
         for (Region region : regionMap.values()) {
             RegionContainer container;
+
+            Bukkit.broadcastMessage("Region container id: " + region.getOwningContainer());
+
             if (region.getOwningContainer().startsWith("w:")) {
                 container = worldManager.getWorldContainers().get(region.getOwningContainer());
+                Bukkit.broadcastMessage("Was a world, yay");
             } else {
                 container = regionMap.get(idMapping.get(region.getOwningContainer()));
+                Bukkit.broadcastMessage("Was a region, yay");
             }
 
-            if (!containerMapping.containsKey(container)) {
-                containerMapping.put(container, new HashSet<>());
-            }
-            containerMapping.get(container).add(region);
-        }
+            container.compileQuadrants(region);
 
-        for (Map.Entry<RegionContainer, Set<Region>> entry : containerMapping.entrySet()) {
-            entry.getKey().compileQuadrants(entry.getValue());
+            Bukkit.broadcastMessage("Debug for: " + region.getId());
+            Bukkit.broadcastMessage("-------------------");
+            Bukkit.broadcastMessage("Container ID: " + container.getContainerID());
+            Bukkit.broadcastMessage("In container quadrant 1: " + container.getContainerQuadrants()[0].getIds().contains(region.getId()));
+            Bukkit.broadcastMessage("In container quadrant 2: " + container.getContainerQuadrants()[1].getIds().contains(region.getId()));
+            Bukkit.broadcastMessage("In container quadrant 3: " + container.getContainerQuadrants()[2].getIds().contains(region.getId()));
+            Bukkit.broadcastMessage("In container quadrant 4: " + container.getContainerQuadrants()[3].getIds().contains(region.getId()));
+            Bukkit.broadcastMessage("-------------------");
         }
 
         // Yay! <3

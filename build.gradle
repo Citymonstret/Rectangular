@@ -37,17 +37,23 @@ repositories {
         dirs 'libs'
     }
     maven {
-        url 'http://maven.sk89q.com/artifactory/repo'
+        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name 'BungeeCord'
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
 }
 
 dependencies {
     compile 'org.projectlombok:lombok:1.16.6'
-    compile name: 'spigot'
-    compile name: 'BKCommonLib'
     compile name: 'JSON_API'
     compile group: 'org.polyjdbc', name: 'polyjdbc', version: '0.5.0'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.7'
+    // compile group: 'org.spigotmc', name: 'spigot-api', version: '1.10-R0.1-SNAPSHOT'
+    compile name: 'spigot-1.10-R0.1-SNAPSHOT-latest' /* We need that sweet NMS */
+    // http://mvnrepository.com/artifact/mysql/mysql-connector-java
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
 }
 
 shadowJar {

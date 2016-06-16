@@ -1,7 +1,7 @@
 package com.intellectualsites.rectangular.database;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
-import lombok.RequiredArgsConstructor;
+
 import org.polyjdbc.core.PolyJDBC;
 import org.polyjdbc.core.PolyJDBCBuilder;
 import org.polyjdbc.core.dialect.Dialect;

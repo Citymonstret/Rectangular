@@ -124,4 +124,9 @@ public class Vector2 {
     public int hashCode() {
         return 997 *  x ^ 991 * y;
     }
+
+    @Override
+    public String toString() {
+        return "X:" + getX() + ",Y:" + getY();
+    }
 }

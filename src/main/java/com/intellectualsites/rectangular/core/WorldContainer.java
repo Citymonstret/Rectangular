@@ -3,6 +3,10 @@ package com.intellectualsites.rectangular.core;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class WorldContainer extends RegionContainer {
 
     @Getter
@@ -20,6 +24,19 @@ public class WorldContainer extends RegionContainer {
     }
 
     public static String generateID(String worldName) {
+        if (worldName.startsWith("w:")) {
+            return worldName;
+        }
         return "w:" + worldName;
+    }
+
+    @Override
+    public List<Integer> getRegionIDs() {
+        List<Integer> ids = new ArrayList<>();
+        for (Quadrant quadrant : getContainerQuadrants()) {
+            ids.addAll(quadrant.getIds().stream().filter(id -> !ids.contains(id))
+                    .collect(Collectors.toSet()));
+        }
+        return ids;
     }
 }

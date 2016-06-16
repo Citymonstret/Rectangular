@@ -27,7 +27,7 @@ public class BukkitUtil {
         return new Vector2(location.getBlockX(), location.getBlockZ());
     }
 
-    public static Location vectorToLocation(World world, Vector2 vector2, int y) {
+    public static Location vectorToLocation(World world, Vector2 vector2, double y) {
         return new Location(world, vector2.getX(), y, vector2.getY());
     }
 

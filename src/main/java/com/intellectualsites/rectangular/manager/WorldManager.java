@@ -20,7 +20,6 @@ public class WorldManager {
     @Getter
     private final HashMap<String, WorldContainer> worldContainers = new HashMap<>();
 
-
     public WorldManager(Collection<String> worlds) {
         for (String world : worlds) {
             WorldContainer temp = new WorldContainer(world);

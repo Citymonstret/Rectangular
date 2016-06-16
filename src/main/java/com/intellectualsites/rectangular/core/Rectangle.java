@@ -31,9 +31,14 @@ public class Rectangle {
                 && v2.getY() >= min.getY() && v2.getY() <= max.getY();
     }
 
-    public boolean overlaps(Rectangle r2) {
-        Vector2 p1 = max, p2 = min, p3 = r2.max, p4 = r2.min;
-        return !(p2.getY() < p3.getY() || p1.getY() > p4.getY() || p2.getX() < p3.getX() || p1.getX() > p4.getX());
+    public boolean overlaps(Rectangle re2) {
+        Vector2 l1 = new Vector2(getMin().getX(), getMax().getY());
+        Vector2 r1 = new Vector2(getMax().getX(), getMin().getY());
+        Vector2 l2 = new Vector2(re2.getMin().getX(), re2.getMax().getY());
+        Vector2 r2 = new Vector2(re2.getMax().getX(), re2.getMin().getY());
+
+        return !(l1.getX() > r2.getX() || l2.getX() > r1.getX()) && !(l1.getY() < r2.getY() || l2.getY() < r1.getY());
+
     }
 
     public List<Vector2> getOutline() {
@@ -52,5 +57,10 @@ public class Rectangle {
     public void copyFrom(Rectangle boundingBox) {
         this.min.set(boundingBox.getMin());
         this.max.set(boundingBox.getMax());
+    }
+
+    @Override
+    public String toString() {
+        return "Min:{" + getMin().toString() + "},Max:{" + getMax().toString() + "}";
     }
 }
