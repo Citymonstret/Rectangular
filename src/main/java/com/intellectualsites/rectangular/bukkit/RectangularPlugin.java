@@ -3,7 +3,7 @@ package com.intellectualsites.rectangular.bukkit;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.bukkit.listener.PlayerListener;
 import com.intellectualsites.rectangular.commands.MainCommand;
-import com.intellectualsites.rectangular.commands.Setup;
+import com.intellectualsites.rectangular.commands.RectangularCommand;
 import com.intellectualsites.rectangular.commands.SubCommand;
 import com.intellectualsites.rectangular.commands.subcommands.Info;
 import com.intellectualsites.rectangular.core.Rectangle;
@@ -19,23 +19,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class RectangularPlugin extends JavaPlugin implements ServiceManager {
-
-    private void setupCommands() {
-        List<SubCommand> subCommands = new ArrayList<>();
-        subCommands.add(new Info());
-        subCommands.add(new Setup());
-        getCommand("rectangular").setExecutor(new MainCommand(subCommands));
-    }
 
     private SelectionManager selectionManager;
 
     @Override
     public void onEnable() {
         this.selectionManager = new BukkitSelectionManager();
-        this.setupCommands();
+        Map<SubCommand, RectangularCommand> subCommands = new HashMap<>();
+        subCommands.put(SubCommand.INFO, new Info());
+        subCommands.put(SubCommand.SETUP, (BukkitSelectionManager) selectionManager);
+        getCommand("rectangular").setExecutor(new MainCommand(subCommands));
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getScheduler().runTaskTimer(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {

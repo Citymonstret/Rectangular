@@ -13,14 +13,16 @@ public class MainCommand implements CommandExecutor {
 
     private final Map<String, SubCommand> commandMap = new HashMap<>();
     private final Map<String, String> aliasMap = new HashMap<>();
+    private final Map<SubCommand, RectangularCommand> commandExecutors = new HashMap<>();
 
-    public MainCommand(Collection<SubCommand> subCommands) {
-        for (SubCommand subCommand : subCommands) {
+    public MainCommand(Map<SubCommand, RectangularCommand> subCommands) {
+        for (SubCommand subCommand : subCommands.keySet()) {
             commandMap.put(subCommand.getCommand(), subCommand);
             for (String alias : subCommand.getAliases()) {
                 aliasMap.put(alias, subCommand.getCommand());
             }
         }
+        commandExecutors.putAll(subCommands);
     }
 
     @Override
@@ -44,6 +46,7 @@ public class MainCommand implements CommandExecutor {
         }
 
         SubCommand subCommand = null;
+
         if (!commandMap.containsKey(commandLabel)) {
             if (aliasMap.containsKey(commandLabel)) {
                 subCommand = commandMap.get(aliasMap.get(commandLabel));
@@ -55,13 +58,18 @@ public class MainCommand implements CommandExecutor {
         if (subCommand == null) {
             rectangularPlayer.sendMessage("@error.no_such_command");
         } else {
-            if (!subCommand.hasPermission(rectangularPlayer, arguments)) {
+            if (!hasPermission(rectangularPlayer, subCommand, arguments)) {
                 rectangularPlayer.sendMessage("@error.no_permission");
             } else {
-                subCommand.execute(rectangularPlayer, arguments);
+                commandExecutors.get(subCommand).execute(rectangularPlayer, arguments);
             }
         }
         return true;
     }
 
+    public boolean hasPermission(RectangularPlayer player, SubCommand command, List<String> arguments) {
+        return player.isOp() ||
+                player.hasPermission("rectangular.admin") ||
+                player.hasPermission("rectangular." + command.getCommand());
+    }
 }

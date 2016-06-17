@@ -123,11 +123,16 @@ public class BukkitPlayer implements RectangularPlayer {
 
     @Override
     public void giveItem(Item item) {
-        player.getInventory().addItem(BukkitUtil.itemToItemStack(item));
+        org.bukkit.inventory.ItemStack itemStack = BukkitUtil.itemToItemStack(item);
+        player.getInventory().addItem(itemStack);
+        player.updateInventory();
     }
 
     @Override
     public void showIndicator(double x, double y, double z, String colour) {
+        if (armorStandCache.containsKey( x + ";" + y + ";" + z)) {
+            return; // Otherwise it will create buggy duplicates :/
+        }
         WorldServer server = ((CraftWorld) player.getWorld()).getHandle();
         EntityArmorStand armorStand = new EntityArmorStand(server);
         armorStand.setLocation(x, y, z, 0f, 0f);

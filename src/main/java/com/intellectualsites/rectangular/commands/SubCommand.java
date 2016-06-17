@@ -1,26 +1,25 @@
 package com.intellectualsites.rectangular.commands;
 
-import com.intellectualsites.rectangular.player.RectangularPlayer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
 
 @RequiredArgsConstructor
-public abstract class SubCommand {
+public enum SubCommand {
+    INFO("info", Arrays.asList("i", "about")),
+    SETUP("setup", Arrays.asList("create", "s"))
+    ;
 
     @Getter
     private final String command;
 
     @Getter
-    private final List<String> aliases;
+    private final Collection<String> aliases;
 
-    public abstract void execute(RectangularPlayer player, List<String> arguments);
-
-    public boolean hasPermission(RectangularPlayer player, List<String> arguments) {
-        return player.isOp() ||
-                player.hasPermission("rectangular.admin") ||
-                player.hasPermission("rectangular." + command);
+    @Override
+    public String toString() {
+        return getCommand();
     }
-
 }

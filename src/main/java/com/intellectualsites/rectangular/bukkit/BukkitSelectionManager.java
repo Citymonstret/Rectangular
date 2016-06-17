@@ -1,5 +1,6 @@
 package com.intellectualsites.rectangular.bukkit;
 
+import com.intellectualsites.rectangular.commands.RectangularCommand;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 import com.intellectualsites.rectangular.selection.SelectionManager;
@@ -9,38 +10,33 @@ import lombok.Setter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class BukkitSelectionManager implements SelectionManager {
+public class BukkitSelectionManager implements SelectionManager, Listener, RectangularCommand {
 
     private Map<Integer, TemporarySelection> selectionMap = new HashMap<>();
 
-    private ItemStack selectionTool;
-
-    public BukkitSelectionManager() {
-        // TODO: Make this configurable
-        {
-            ItemStack stack = new ItemStack(Material.POTATO);
-            ItemMeta meta = stack.getItemMeta();
-            meta.setDisplayName(ChatColor.RED + "Rectangular Selection Tool");
-            meta.addEnchant(Enchantment.DURABILITY, 1, true);
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            stack.setItemMeta(meta); // Because this fails sometimes, apparently?
-            this.selectionTool = stack;
-        }
-    }
+    private static final String ITEM_TITLE = ChatColor.translateAlternateColorCodes('&', "&9[&8Rectangular&9] &cSelection Tool");
 
     public ItemStack getSelectionTool() {
-        return selectionTool.clone();
+        ItemStack stack = new ItemStack(Material.POTATO_ITEM);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(ITEM_TITLE);
+        meta.addEnchant(Enchantment.DURABILITY, 1, true);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        stack.setItemMeta(meta); // Because this fails sometimes, apparently?
+        return stack;
     }
 
     public boolean isSelectionTool(ItemStack stack) {
-        return selectionTool.isSimilar(stack);
+        return stack.isSimilar(getSelectionTool());
     }
 
     @Override
@@ -62,6 +58,26 @@ public class BukkitSelectionManager implements SelectionManager {
     @Override
     public void equipPlayer(RectangularPlayer player) {
         player.giveItem(BukkitUtil.itemStackToItem(getSelectionTool()));
+    }
+
+    @Override
+    public void execute(RectangularPlayer player, List<String> arguments) {
+        if (player.isInRegion()) {
+            player.sendMessage("@error.use_expand");
+        } else {
+            if (arguments.size() > 0) {
+                String first = arguments.get(0);
+                if (first.equalsIgnoreCase("cancel")) {
+                    player.sendMessage("@error.not_implemented");
+                    return;
+                } else if (first.equalsIgnoreCase("finish")) {
+                    player.sendMessage("@error.not_implemented");
+                    return;
+                }
+            }
+            equipPlayer(player);
+            player.sendMessage("@setup.equipped");
+        }
     }
 
     private static class TemporarySelection {
