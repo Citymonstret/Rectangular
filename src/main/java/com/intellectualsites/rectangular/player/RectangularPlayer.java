@@ -2,6 +2,7 @@ package com.intellectualsites.rectangular.player;
 
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
+import com.intellectualsites.rectangular.item.Item;
 
 import java.util.UUID;
 
@@ -34,4 +35,6 @@ public interface RectangularPlayer {
     void deleteIndicators();
 
     PlayerEventObserver getEventObserver();
+
+    void giveItem(Item item);
 }

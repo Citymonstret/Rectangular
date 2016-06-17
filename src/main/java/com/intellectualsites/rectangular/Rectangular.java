@@ -30,16 +30,21 @@ public final class Rectangular {
     }
 
     @Getter
-    public RegionManager regionManager;
+    private ServiceManager serviceManager;
 
     @Getter
-    public WorldManager worldManager;
+    private RegionManager regionManager;
+
+    @Getter
+    private WorldManager worldManager;
 
     @Getter
     private RectangularDB database;
 
     private Rectangular(ServiceManager provider) {
         rectangular = this;
+
+        this.serviceManager = provider;
 
         YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new File(provider.getFolder(), "core.yml"));
         Configuration defaults = new MemoryConfiguration();

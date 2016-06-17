@@ -59,6 +59,11 @@ public class BukkitSelectionManager implements SelectionManager {
         this.selectionMap.remove(player.getId());
     }
 
+    @Override
+    public void equipPlayer(RectangularPlayer player) {
+        player.giveItem(BukkitUtil.itemStackToItem(getSelectionTool()));
+    }
+
     private static class TemporarySelection {
 
         @Getter

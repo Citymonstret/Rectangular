@@ -3,6 +3,7 @@ package com.intellectualsites.rectangular.bukkit;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
+import com.intellectualsites.rectangular.item.Item;
 import com.intellectualsites.rectangular.player.PlayerEventObserver;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 import lombok.Getter;
@@ -118,6 +119,11 @@ public class BukkitPlayer implements RectangularPlayer {
         PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(ids);
         armorStandCache.clear();
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+    }
+
+    @Override
+    public void giveItem(Item item) {
+        player.getInventory().addItem(BukkitUtil.itemToItemStack(item));
     }
 
     @Override

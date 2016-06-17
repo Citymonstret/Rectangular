@@ -11,4 +11,6 @@ public interface SelectionManager {
 
     void clearSelection(RectangularPlayer player);
 
+    void equipPlayer(RectangularPlayer player);
+
 }

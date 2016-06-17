@@ -3,12 +3,14 @@ package com.intellectualsites.rectangular.bukkit;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.bukkit.listener.PlayerListener;
 import com.intellectualsites.rectangular.commands.MainCommand;
+import com.intellectualsites.rectangular.commands.Setup;
 import com.intellectualsites.rectangular.commands.SubCommand;
 import com.intellectualsites.rectangular.commands.subcommands.Info;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.manager.ServiceManager;
 import com.intellectualsites.rectangular.manager.WorldManager;
+import com.intellectualsites.rectangular.selection.SelectionManager;
 import com.intellectualsites.rectangular.vector.Vector2;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -24,11 +26,15 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager {
     private void setupCommands() {
         List<SubCommand> subCommands = new ArrayList<>();
         subCommands.add(new Info());
+        subCommands.add(new Setup());
         getCommand("rectangular").setExecutor(new MainCommand(subCommands));
     }
 
+    private SelectionManager selectionManager;
+
     @Override
     public void onEnable() {
+        this.selectionManager = new BukkitSelectionManager();
         this.setupCommands();
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getScheduler().runTaskTimer(this, () -> {
@@ -71,6 +77,11 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager {
     @Override
     public void runAsync(Runnable r) {
         getServer().getScheduler().runTaskAsynchronously(this, r);
+    }
+
+    @Override
+    public SelectionManager getSelectionManager() {
+        return selectionManager;
     }
 
     @Override
