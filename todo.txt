@@ -1,0 +1,7 @@
+TODO > Ver: 1.0 | Jun 18th 2016
+------------------------------------------------------------------------------------------------------------------------------------------------
+* Remake region container API (Allow for prefix based unboxing: World, PlotSquared etc)
+* Add basic commands (setup, delete, expand, reduce, flag)
+* Add flag system (in process already) + flag groups (p:member, p:trusted, p:other, g:admin, g:moderator etc -> Prefix unboxing, yet again)
+* Add conversion system (classloader system etc)
+------------------------------------------------------------------------------------------------------------------------------------------------
