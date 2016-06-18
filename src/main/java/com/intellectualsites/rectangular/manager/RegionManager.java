@@ -2,10 +2,7 @@ package com.intellectualsites.rectangular.manager;
 
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.bukkit.RectangularPlugin;
-import com.intellectualsites.rectangular.core.Quadrant;
-import com.intellectualsites.rectangular.core.Rectangle;
-import com.intellectualsites.rectangular.core.Region;
-import com.intellectualsites.rectangular.core.RegionContainer;
+import com.intellectualsites.rectangular.core.*;
 import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.vector.Vector2;
@@ -19,13 +16,13 @@ import java.util.stream.Collectors;
 
 public class RegionManager {
 
-    private WorldManager worldManager;
+    private final ContainerManager containerManager;
 
     private final Map<String, Integer> idMapping = new ConcurrentHashMap<>();
     private final Map<Integer, Region> regionMap = new ConcurrentHashMap<>();
 
-    public RegionManager(WorldManager worldManager, RectangularDB database) {
-        this.worldManager = worldManager;
+    public RegionManager(ContainerManager containerManager, RectangularDB database) {
+        this.containerManager = containerManager;
     }
 
     public void load() {
@@ -42,20 +39,9 @@ public class RegionManager {
         }
 
         for (Region region : regionMap.values()) {
-            RegionContainer container;
-
             Bukkit.broadcastMessage("Region container id: " + region.getOwningContainer());
-
-            if (region.getOwningContainer().startsWith("w:")) {
-                container = worldManager.getWorldContainers().get(region.getOwningContainer());
-                Bukkit.broadcastMessage("Was a world, yay");
-            } else {
-                container = regionMap.get(idMapping.get(region.getOwningContainer()));
-                Bukkit.broadcastMessage("Was a region, yay");
-            }
-
+            RegionContainer container = containerManager.getRegionContainer(region.getOwningContainer());;
             container.compileQuadrants(region);
-
             Bukkit.broadcastMessage("Debug for: " + region.getId());
             Bukkit.broadcastMessage("-------------------");
             Bukkit.broadcastMessage("Container ID: " + container.getContainerID());
@@ -90,7 +76,7 @@ public class RegionManager {
             regionMap.put(region.getId(), region);
         }
         if (region.getOwningContainer().startsWith("w:")) {
-            worldManager.getWorldContainers().get(region.getOwningContainer()).compileQuadrants(region);
+            ((WorldManager) containerManager.getContainerFactory('w')).getWorldContainers().get(region.getOwningContainer()).compileQuadrants(region);
         } else {
             regionMap.get(idMapping.get(region.getOwningContainer())).compileQuadrants(region);
         }
@@ -110,8 +96,8 @@ public class RegionManager {
     public Set<Region> overlaps(String world, Rectangle rectangle) {
         // This will just make sure that we get all possible regions
         // As the min and the max might be in different world quadrants (unlikely)
-        Quadrant minQ = worldManager.getWorldContainer(world).getContainerQuadrant(rectangle.getMin());
-        Quadrant maxQ = worldManager.getWorldContainer(world).getContainerQuadrant(rectangle.getMax());
+        Quadrant minQ = containerManager.getRegionContainer('w', world).getContainerQuadrant(rectangle.getMin());
+        Quadrant maxQ = containerManager.getRegionContainer('w', world).getContainerQuadrant(rectangle.getMax());
 
         Set<Region> regions = new HashSet<>();
         List<Integer> toCheck = new ArrayList<>();
@@ -133,7 +119,8 @@ public class RegionManager {
     }
 
     public Region getHighestLevelRegion(String world, Vector2 vector2) {
-        Quadrant quadrant =  worldManager.getWorldContainer(world).getContainerQuadrant(vector2);
+        Quadrant quadrant = containerManager.getRegionContainer('w', world).getContainerQuadrant(vector2);
+
         if (quadrant == null || quadrant.isEmpty()) {
             return null;
         }

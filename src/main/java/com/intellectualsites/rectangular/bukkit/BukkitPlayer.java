@@ -69,7 +69,7 @@ public class BukkitPlayer implements RectangularPlayer {
             regionFetched = true;
             resetRegionCache();
         }
-        return topLevelRegion; // TODO: FIX!
+        return topLevelRegion;
     }
 
     @Override
@@ -85,12 +85,12 @@ public class BukkitPlayer implements RectangularPlayer {
 
     @Override
     public String getWorld() {
-        return "w:" + player.getWorld().getName();
+        return player.getWorld().getName();
     }
 
     @Override
     public WorldContainer getWorldObject() {
-        return Rectangular.get().getWorldManager().getWorldContainer(getWorld());
+        return Rectangular.get().getWorldManager().getContainer(getWorld());
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.intellectualsites.rectangular.manager;
 
 import com.intellectualsites.rectangular.Rectangular;
+import com.intellectualsites.rectangular.core.ContainerFactory;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import lombok.Getter;
@@ -15,30 +16,18 @@ import java.util.Set;
  *
  * @author Citymonstret
  */
-public class WorldManager {
+public class WorldManager extends ContainerFactory<WorldContainer> {
 
     @Getter
     private final HashMap<String, WorldContainer> worldContainers = new HashMap<>();
 
     public WorldManager(Collection<String> worlds) {
+        super('w');
+
         for (String world : worlds) {
             WorldContainer temp = new WorldContainer(world);
-            worldContainers.put(temp.getContainerID(), temp);
+            worldContainers.put(temp.getWorldName(), temp);
         }
-        /*
-        Remove bukkit specific code
-        for (World world : Bukkit.getWorlds()) {
-            WorldContainer temporary = new WorldContainer(world.getName());
-            worldContainers.put(temporary.getContainerID(), temporary);
-        }*/
-    }
-
-    public WorldContainer getWorldContainer(String worldName) {
-        String containerID = WorldContainer.generateID(worldName);
-        if (!worldContainers.containsKey(containerID)) {
-            return new WorldContainer("null");
-        }
-        return worldContainers.get(containerID);
     }
 
     /**
@@ -48,12 +37,31 @@ public class WorldManager {
      * @return Set containing all regions
      */
     public Set<Region> getRegionsInWorld(String worldName) {
-        WorldContainer container = getWorldContainer(worldName);
+        WorldContainer container = getContainer(worldName);
         Set<Region> set = new HashSet<>();
         for (int i : container.getRegionIDs()) {
             Region region = Rectangular.get().getRegionManager().getRegion(i);
             set.add(region);
         }
         return set;
+    }
+
+    @Override
+    public WorldContainer getContainer(String key) {
+        if (key.startsWith("w:")) {
+            key = key.replace("w:", "");
+        }
+        if (!hasContainer(key)) {
+            return new WorldContainer("null");
+        }
+        return worldContainers.get(key);
+    }
+
+    @Override
+    public boolean hasContainer(String key) {
+        if (key.startsWith("w:")) {
+            key = key.replace("w:", "");
+        }
+        return worldContainers.containsKey(key);
     }
 }
