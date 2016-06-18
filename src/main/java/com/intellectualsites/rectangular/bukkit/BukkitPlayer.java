@@ -7,14 +7,9 @@ import com.intellectualsites.rectangular.item.Item;
 import com.intellectualsites.rectangular.player.PlayerEventObserver;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 import lombok.Getter;
-import net.minecraft.server.v1_10_R1.*;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
-import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
-import org.bukkit.material.Wool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -106,9 +101,8 @@ public class BukkitPlayer implements RectangularPlayer {
         if (!armorStandCache.containsKey(key)) {
             return;
         }
-        PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(armorStandCache.get(key));
+        RectangularPlugin.getNmsImplementation().getArmorStandManager().despawn(this, armorStandCache.get(key));
         armorStandCache.remove(key);
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
     @Override
@@ -116,9 +110,8 @@ public class BukkitPlayer implements RectangularPlayer {
         int[] ids = new int[armorStandCache.size()];
         final int[] index = {0};
         armorStandCache.values().forEach(i -> ids[index[0]++] = i);
-        PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(ids);
         armorStandCache.clear();
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+        RectangularPlugin.getNmsImplementation().getArmorStandManager().despawn(this, ids);
     }
 
     @Override
@@ -133,19 +126,6 @@ public class BukkitPlayer implements RectangularPlayer {
         if (armorStandCache.containsKey( x + ";" + y + ";" + z)) {
             return; // Otherwise it will create buggy duplicates :/
         }
-        WorldServer server = ((CraftWorld) player.getWorld()).getHandle();
-        EntityArmorStand armorStand = new EntityArmorStand(server);
-        armorStand.setLocation(x, y, z, 0f, 0f);
-        armorStand.setInvisible(true);
-        armorStand.setSmall(true);
-        armorStand.setNoGravity(true);
-        armorStand.setSilent(true);
-        armorStand.setInvulnerable(true);
-        Packet packet = new PacketPlayOutSpawnEntityLiving(armorStand);
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-        Wool wool = new Wool(DyeColor.valueOf(colour.toUpperCase()));
-        packet = new PacketPlayOutEntityEquipment(armorStand.getId(), EnumItemSlot.HEAD, CraftItemStack.asNMSCopy(wool.toItemStack()));
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-        armorStandCache.put(x + ";" + y + ";" + z, armorStand.getId());
+        armorStandCache.put(x + ";" + y + ";" + z, RectangularPlugin.getNmsImplementation().getArmorStandManager().spawn(this, x, y, z, DyeColor.valueOf(colour.toUpperCase())));
     }
 }
