@@ -2,6 +2,7 @@ package com.intellectualsites.rectangular;
 
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.database.RectangularDBMySQL;
+import com.intellectualsites.rectangular.manager.ContainerManager;
 import com.intellectualsites.rectangular.manager.RegionManager;
 import com.intellectualsites.rectangular.manager.ServiceManager;
 import com.intellectualsites.rectangular.manager.WorldManager;
@@ -13,6 +14,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public final class Rectangular {
 
@@ -44,8 +46,14 @@ public final class Rectangular {
     private Rectangular(ServiceManager provider) {
         rectangular = this;
 
-        this.serviceManager = provider;
+        Consumer<String> logger = s -> provider.logger().info(s);
 
+        // Setup the service manager
+        this.serviceManager = provider;
+        provider.logger().info("Rectangular initializing, using service manager: " + provider.getClass().getName());
+        //
+
+        logger.accept("Loading configuration, from: " + provider.getFolder() + File.separator + "core.yml");
         YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new File(provider.getFolder(), "core.yml"));
         Configuration defaults = new MemoryConfiguration();
         ConfigurationSection database = defaults.createSection("database");
@@ -61,9 +69,8 @@ public final class Rectangular {
             e.printStackTrace();
         }
 
-
+        logger.accept("Connecting to the MySQL database");
         database = yamlConfiguration.getConfigurationSection("database");
-
         RectangularDB db = new RectangularDBMySQL(
                 database.getString("database"),
                 database.getString("username"),
@@ -82,10 +89,17 @@ public final class Rectangular {
             db.createSchema();
         }
 
+        logger.accept("Connection established!");
+
         this.database = db;
         this.worldManager = provider.getWorldManager();
-        this.regionManager = new RegionManager(worldManager, db);
 
+        ContainerManager containerManager = new ContainerManager();
+        containerManager.addContainerFactory(this.worldManager);
+
+        this.regionManager = new RegionManager(containerManager, db);
+
+        logger.accept("Loading regions async...");
         provider.runAsync(() -> regionManager.load());
     }
 

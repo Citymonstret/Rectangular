@@ -9,6 +9,7 @@ import com.intellectualsites.rectangular.commands.SubCommand;
 import com.intellectualsites.rectangular.commands.subcommands.Info;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.logging.RectangularLogger;
 import com.intellectualsites.rectangular.manager.ServiceManager;
 import com.intellectualsites.rectangular.manager.WorldManager;
 import com.intellectualsites.rectangular.selection.SelectionManager;
@@ -26,7 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class RectangularPlugin extends JavaPlugin implements ServiceManager {
+public class RectangularPlugin extends JavaPlugin implements ServiceManager, RectangularLogger {
 
     private SelectionManager selectionManager;
 
@@ -38,6 +39,7 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager {
         String version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
         if (version.equals("v1_10_R1")) {
             nmsImplementation = new com.intellectualsites.rectangular.bukkit.nms.v1_10_R0_1.NMSImplementation();
+            getLogger().info("Running NMSImplementation: " + nmsImplementation.getImplementationName() + " | " + version);
         } else {
             shutdown("You are not running a supported server version");
         }
@@ -86,6 +88,11 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager {
     }
 
     @Override
+    public RectangularLogger logger() {
+        return this;
+    }
+
+    @Override
     public void shutdown(String reason) {
         getLogger().severe("Shutting down: " + reason);
         getServer().getPluginManager().disablePlugin(this);
@@ -104,5 +111,11 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager {
     @Override
     public File getFolder() {
         return getDataFolder();
+    }
+
+    @Override
+    public RectangularLogger info(String str) {
+        getLogger().info(str);
+        return this;
     }
 }
