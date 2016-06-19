@@ -1,12 +1,13 @@
 package com.intellectualsites.rectangular.manager;
 
+import com.intellectualsites.rectangular.CoreModule;
 import com.intellectualsites.rectangular.core.ContainerFactory;
 import com.intellectualsites.rectangular.core.RegionContainer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ContainerManager {
+public class ContainerManager implements CoreModule {
 
     private Map<Character, ContainerFactory<?>> containerFactories = new HashMap<>();
 

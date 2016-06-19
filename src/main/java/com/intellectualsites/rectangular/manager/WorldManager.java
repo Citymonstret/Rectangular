@@ -1,5 +1,6 @@
 package com.intellectualsites.rectangular.manager;
 
+import com.intellectualsites.rectangular.CoreModule;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.core.ContainerFactory;
 import com.intellectualsites.rectangular.core.Region;
@@ -16,7 +17,7 @@ import java.util.Set;
  *
  * @author Citymonstret
  */
-public class WorldManager extends ContainerFactory<WorldContainer> {
+public class WorldManager extends ContainerFactory<WorldContainer> implements CoreModule {
 
     @Getter
     private final HashMap<String, WorldContainer> worldContainers = new HashMap<>();

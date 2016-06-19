@@ -2,11 +2,9 @@ package com.intellectualsites.rectangular;
 
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.database.RectangularDBMySQL;
-import com.intellectualsites.rectangular.manager.ContainerManager;
-import com.intellectualsites.rectangular.manager.RegionManager;
-import com.intellectualsites.rectangular.manager.ServiceManager;
-import com.intellectualsites.rectangular.manager.WorldManager;
+import com.intellectualsites.rectangular.manager.*;
 import lombok.Getter;
+import lombok.NonNull;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -20,7 +18,7 @@ public final class Rectangular {
 
     private static Rectangular rectangular;
 
-    public static void setup(ServiceManager provider) throws IllegalAccessException {
+    public static void setup(@NonNull final ServiceManager provider) throws IllegalAccessException {
         if (rectangular != null) {
             throw new IllegalAccessException("Cannot setup rectangular when already setup, duh");
         }
@@ -30,6 +28,9 @@ public final class Rectangular {
     public static Rectangular get() {
         return rectangular;
     }
+
+    @Getter
+    private EventManager eventManager = new EventManager();
 
     @Getter
     private ServiceManager serviceManager;
@@ -43,12 +44,9 @@ public final class Rectangular {
     @Getter
     private RectangularDB database;
 
-    private Rectangular(ServiceManager provider) {
-        rectangular = this;
-
-        Consumer<String> logger = s -> provider.logger().info(s);
-
+    private Rectangular(final ServiceManager provider) {
         // Setup the service manager
+        Consumer<String> logger = s -> provider.logger().info(s);
         this.serviceManager = provider;
         provider.logger().info("Rectangular initializing, using service manager: " + provider.getClass().getName());
         //

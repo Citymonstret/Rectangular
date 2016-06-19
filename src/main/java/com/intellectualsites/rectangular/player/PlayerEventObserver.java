@@ -1,6 +1,9 @@
 package com.intellectualsites.rectangular.player;
 
+import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.event.impl.PlayerEnteredRegionEvent;
+import com.intellectualsites.rectangular.event.impl.PlayerLeftRegionEvent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -11,13 +14,11 @@ public class PlayerEventObserver {
     private final RectangularPlayer player;
 
     public void onPlayerLeaveRegion(Region left) {
-        player.sendMessage("&cYou left region: " + left.getId());
-        // TODO: Throw event
+        Rectangular.get().getEventManager().push(new PlayerLeftRegionEvent(player, left));
     }
 
     public void onPlayerEnterRegion() {
-        player.sendMessage("&cYou entered region: " + player.getRegion().getId());
-        // TODO: Throw event
+        Rectangular.get().getEventManager().push(new PlayerEnteredRegionEvent(player));
     }
 
 }

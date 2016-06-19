@@ -1,5 +1,6 @@
 package com.intellectualsites.rectangular.bukkit;
 
+import com.google.common.eventbus.Subscribe;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.bukkit.listener.PlayerListener;
 import com.intellectualsites.rectangular.bukkit.nms.NMSImplementation;
@@ -9,6 +10,10 @@ import com.intellectualsites.rectangular.commands.SubCommand;
 import com.intellectualsites.rectangular.commands.subcommands.Info;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.event.RectangularListener;
+import com.intellectualsites.rectangular.event.impl.PlayerEnteredRegionEvent;
+import com.intellectualsites.rectangular.event.impl.PlayerLeftRegionEvent;
+import com.intellectualsites.rectangular.event.impl.RegionManagerDoneEvent;
 import com.intellectualsites.rectangular.logging.RectangularLogger;
 import com.intellectualsites.rectangular.manager.ServiceManager;
 import com.intellectualsites.rectangular.manager.WorldManager;
@@ -27,7 +32,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class RectangularPlugin extends JavaPlugin implements ServiceManager, RectangularLogger {
+public class RectangularPlugin extends JavaPlugin implements ServiceManager, RectangularLogger, RectangularListener {
 
     private SelectionManager selectionManager;
 
@@ -53,6 +58,27 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
 
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 
+        try {
+            Rectangular.setup(this);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        Rectangular.get().getEventManager().register(this);
+    }
+
+    @Subscribe
+    public void onPlayerLeftRegion(PlayerLeftRegionEvent event) {
+        event.getPlayer().sendMessage("&cYou left region: " + event.getOldRegion().getId());
+    }
+
+    @Subscribe
+    public void onPlayerEnterRegion(PlayerEnteredRegionEvent event) {
+        event.getPlayer().sendMessage("&cYou entered region: " + event.getRegion().getId());
+    }
+
+    @Subscribe
+    public void onRegionManagerLoad(RegionManagerDoneEvent event) {
         // start #temp1 ::= Temporary test code
         getServer().getScheduler().runTaskTimer(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -72,12 +98,6 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
             }
         }, 0L, 5L);
         // emd #temp1
-
-        try {
-            Rectangular.setup(this);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -101,6 +121,11 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
     @Override
     public void runAsync(Runnable r) {
         getServer().getScheduler().runTaskAsynchronously(this, r);
+    }
+
+    @Override
+    public void runSync(Runnable r) {
+        getServer().getScheduler().runTask(this, r);
     }
 
     @Override

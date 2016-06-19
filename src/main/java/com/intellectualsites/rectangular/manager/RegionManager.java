@@ -1,10 +1,12 @@
 package com.intellectualsites.rectangular.manager;
 
+import com.intellectualsites.rectangular.CoreModule;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.bukkit.RectangularPlugin;
 import com.intellectualsites.rectangular.core.*;
 import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.database.RectangularDB;
+import com.intellectualsites.rectangular.event.impl.RegionManagerDoneEvent;
 import com.intellectualsites.rectangular.vector.Vector2;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class RegionManager {
+public class RegionManager implements CoreModule {
 
     private final ContainerManager containerManager;
 
@@ -62,6 +64,9 @@ public class RegionManager {
         logger.info("Finished loading!");
         logger.info("Loaded " + temp.size() + " rectangles, making " + regions.size() + " regions!");
         // -tc == End of Temporary
+
+        // Call the event, but this action is always ran async
+        Rectangular.get().getServiceManager().runSync(() -> Rectangular.get().getEventManager().push(new RegionManagerDoneEvent(RegionManager.this)));
     }
 
     /**

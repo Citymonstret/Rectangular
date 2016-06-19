@@ -50,12 +50,10 @@ repositories {
 
 dependencies {
     compile 'org.projectlombok:lombok:1.16.6'
-    compile name: 'JSON_API'
     compile 'com.github.IntellectualSites:polyjdbc:0d033e200798d978749b86907dd1f8122513023'
-    // compile group: 'org.spigotmc', name: 'spigot-api', version: '1.10-R0.1-SNAPSHOT'
     compile name: 'spigot-1.10-R0.1-SNAPSHOT-latest' /* We need that sweet NMS */
-    // http://mvnrepository.com/artifact/mysql/mysql-connector-java
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
+    compile group: 'com.google.guava', name: 'guava', version: '19.0'
 }
 
 shadowJar {
