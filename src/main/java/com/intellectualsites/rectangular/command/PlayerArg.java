@@ -1,12 +1,12 @@
 package com.intellectualsites.rectangular.command;
 
-import com.intellectualsites.commands.argument.ArgumentType;
 import com.intellectualsites.rectangular.Rectangular;
+import com.intellectualsites.rectangular.parser.Parser;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 
 import java.util.UUID;
 
-public class PlayerArg extends ArgumentType<RectangularPlayer> {
+public class PlayerArg extends Parser<RectangularPlayer> {
 
     public PlayerArg() {
         super("player", null);

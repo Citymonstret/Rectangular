@@ -1,12 +1,12 @@
 package com.intellectualsites.commands;
 
-import com.intellectualsites.commands.argument.ArgumentType;
 import com.intellectualsites.commands.callers.CommandCaller;
 import com.intellectualsites.commands.options.ManagerOptions;
 import com.intellectualsites.commands.permission.AdvancedPermission;
 import com.intellectualsites.commands.permission.SimplePermission;
-import com.intellectualsites.commands.argument.Argument;
 import com.intellectualsites.commands.util.StringUtil;
+import com.intellectualsites.rectangular.parser.InstantArray;
+import com.intellectualsites.rectangular.parser.Parserable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -183,16 +183,16 @@ public class CommandManager {
                 break scope;
             }
             // Now the fun stuff is beginning :D
-            Map<String, Argument> requiredArguments = cmd.getRequiredArguments();
+            Map<String, Parserable> requiredArguments = cmd.getRequiredArguments();
             if (requiredArguments.size() > 0) {
                 boolean success = true;
                 if (args.length < requiredArguments.size()) {
                     success = false;
                 } else {
                     int index = 0;
-                    for (Map.Entry<String, Argument> requiredArgument : requiredArguments.entrySet()) {
+                    for (Map.Entry<String, Parserable> requiredArgument : requiredArguments.entrySet()) {
                         Object value;
-                        if (requiredArgument.getValue().getArgumentType() instanceof ArgumentType.InstantArray) {
+                        if (requiredArgument.getValue().getParser() instanceof InstantArray) {
                             StringBuilder cache = new StringBuilder();
                             for (int i = index; i < args.length; i++) {
                                 if (cache.toString().isEmpty()) {
