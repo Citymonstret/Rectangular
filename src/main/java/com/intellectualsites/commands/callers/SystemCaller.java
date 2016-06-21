@@ -23,7 +23,7 @@ public class SystemCaller implements CommandCaller {
         return true;
     }
 
-    public void sendRequiredArgumentsList(CommandManager manager, Command cmd, Collection required, String usage) {
+    public void sendRequiredArgumentsList(CommandManager manager, Command cmd, Collection<Parserable> required, String usage) {
         StringBuilder builder = new StringBuilder();
         builder.append(cmd.getCommand()).append(" requires ");
         for (Object o: required) {

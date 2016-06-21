@@ -7,6 +7,7 @@ import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import com.intellectualsites.rectangular.item.Item;
+import com.intellectualsites.rectangular.parser.Parserable;
 import com.intellectualsites.rectangular.player.PlayerEventObserver;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 import lombok.Getter;
@@ -139,7 +140,7 @@ public class BukkitPlayer implements RectangularPlayer {
     }
 
     @Override
-    public void sendRequiredArgumentsList(CommandManager manager, Command cmd, Collection<Argument> required, String usage) {
+    public void sendRequiredArgumentsList(CommandManager manager, Command cmd, Collection<Parserable> required, String usage) {
 
     }
 }
