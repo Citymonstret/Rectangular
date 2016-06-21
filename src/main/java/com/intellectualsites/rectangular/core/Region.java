@@ -1,11 +1,18 @@
 package com.intellectualsites.rectangular.core;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.PathIterator;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class Region extends RegionContainer {
 
@@ -29,6 +36,9 @@ public class Region extends RegionContainer {
 
     @Getter
     private final String owningContainer;
+
+    @Getter
+    private ImmutableList<Vector2> corners;
 
     @Setter
     @Getter
@@ -133,6 +143,7 @@ public class Region extends RegionContainer {
             }
             this.quadrants[3] = quadrant;
         }
+
     }
 
     public boolean isInRegion(Vector2 v2) {
@@ -145,6 +156,53 @@ public class Region extends RegionContainer {
             }
         }
         return false;
+    }
+
+    private void compileCorners() {
+        Area nativeArea = new Area();
+        for (Rectangle rectangle : rectangles) {
+            nativeArea.add(rectangle.toArea(boundingBox.getMin()));
+        }
+        List<Vector2> list = new ArrayList<>();
+        double coords[] = new double[6];
+        AffineTransform transform = AffineTransform.getRotateInstance(1,0);
+        for (PathIterator pathIterator = nativeArea.getPathIterator(transform); !pathIterator.isDone(); pathIterator.next()) {
+            int type = pathIterator.currentSegment(coords);
+            list.add(new Vector2(boundingBox.getMin().getX() + (int) coords[0], boundingBox.getMin().getY() + (int) coords[1]));
+        }
+        this.corners = ImmutableList.copyOf(list);
+    }
+
+    public ImmutableList<Vector2> getCorners() {
+        if (corners == null) {
+            compileCorners();
+        }
+        return corners;
+    }
+
+    public ImmutableCollection<Vector2> getOutline(boolean includeCorners) {
+        List<Vector2> points = new ArrayList<>();
+        List<Vector2> toRemove = new ArrayList<>();
+        for (Rectangle rectangle : rectangles) {
+            for (Vector2 v2 : rectangle.getOutline()) {
+                if (points.contains(v2)) {
+                    toRemove.add(v2);
+                } else {
+                    points.add(v2);
+                }
+            }
+        }
+        if (includeCorners) {
+            for (Vector2 v2 : getCorners()) {
+                if (points.contains(v2)) {
+                    toRemove.add(v2);
+                } else {
+                    points.add(v2);
+                }
+            }
+        }
+        points.removeAll(toRemove);
+        return ImmutableList.copyOf(points);
     }
 
     @Override

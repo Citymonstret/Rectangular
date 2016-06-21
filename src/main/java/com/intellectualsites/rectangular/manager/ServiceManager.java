@@ -21,4 +21,7 @@ public interface ServiceManager extends CoreModule {
     SelectionManager getSelectionManager();
 
     File getFolder();
+
+    PlayerManager getPlayerManager();
+
 }

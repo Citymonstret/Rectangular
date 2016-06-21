@@ -1,12 +1,13 @@
 package com.intellectualsites.rectangular.player;
 
+import com.intellectualsites.commands.callers.CommandCaller;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import com.intellectualsites.rectangular.item.Item;
 
 import java.util.UUID;
 
-public interface RectangularPlayer {
+public interface RectangularPlayer extends CommandCaller<RectangularPlayer> {
 
     UUID getUniqueId();
 
@@ -37,4 +38,14 @@ public interface RectangularPlayer {
     PlayerEventObserver getEventObserver();
 
     void giveItem(Item item);
+
+    @Override
+    default RectangularPlayer getSuperCaller() {
+        return this;
+    }
+
+    @Override
+    default void message(String message) {
+        this.sendMessage(message);
+    }
 }

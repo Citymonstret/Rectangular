@@ -4,6 +4,7 @@ import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +58,10 @@ public class Rectangle {
     public void copyFrom(Rectangle boundingBox) {
         this.min.set(boundingBox.getMin());
         this.max.set(boundingBox.getMax());
+    }
+
+    public Area toArea(Vector2 min) {
+        return new Area(new java.awt.Rectangle(getMin().getX() - min.getX(), getMin().getY() - min.getY(), getMax().getX() - getMin().getX(), getMax().getY() - getMin().getY()));
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.intellectualsites.rectangular.bukkit;
 
-import com.intellectualsites.rectangular.commands.RectangularCommand;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 import com.intellectualsites.rectangular.selection.SelectionManager;
@@ -16,10 +15,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class BukkitSelectionManager implements SelectionManager, Listener, RectangularCommand {
+public class BukkitSelectionManager implements SelectionManager, Listener {
 
     private Map<Integer, TemporarySelection> selectionMap = new HashMap<>();
 
@@ -58,26 +56,6 @@ public class BukkitSelectionManager implements SelectionManager, Listener, Recta
     @Override
     public void equipPlayer(RectangularPlayer player) {
         player.giveItem(BukkitUtil.itemStackToItem(getSelectionTool()));
-    }
-
-    @Override
-    public void execute(RectangularPlayer player, List<String> arguments) {
-        if (player.isInRegion()) {
-            player.sendMessage("@error.use_expand");
-        } else {
-            if (arguments.size() > 0) {
-                String first = arguments.get(0);
-                if (first.equalsIgnoreCase("cancel")) {
-                    player.sendMessage("@error.not_implemented");
-                    return;
-                } else if (first.equalsIgnoreCase("finish")) {
-                    player.sendMessage("@error.not_implemented");
-                    return;
-                }
-            }
-            equipPlayer(player);
-            player.sendMessage("@setup.equipped");
-        }
     }
 
     private static class TemporarySelection {

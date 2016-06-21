@@ -1,38 +1,38 @@
 package com.intellectualsites.rectangular.bukkit;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
+import com.intellectualsites.commands.Command;
+import com.intellectualsites.commands.CommandHandlingOutput;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.bukkit.listener.PlayerListener;
 import com.intellectualsites.rectangular.bukkit.nms.NMSImplementation;
-import com.intellectualsites.rectangular.commands.MainCommand;
-import com.intellectualsites.rectangular.commands.RectangularCommand;
-import com.intellectualsites.rectangular.commands.SubCommand;
-import com.intellectualsites.rectangular.commands.subcommands.Info;
-import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.event.RectangularListener;
 import com.intellectualsites.rectangular.event.impl.PlayerEnteredRegionEvent;
 import com.intellectualsites.rectangular.event.impl.PlayerLeftRegionEvent;
 import com.intellectualsites.rectangular.event.impl.RegionManagerDoneEvent;
 import com.intellectualsites.rectangular.logging.RectangularLogger;
+import com.intellectualsites.rectangular.manager.PlayerManager;
 import com.intellectualsites.rectangular.manager.ServiceManager;
 import com.intellectualsites.rectangular.manager.WorldManager;
+import com.intellectualsites.rectangular.player.RectangularPlayer;
 import com.intellectualsites.rectangular.selection.SelectionManager;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
-public class RectangularPlugin extends JavaPlugin implements ServiceManager, RectangularLogger, RectangularListener {
+public class RectangularPlugin extends JavaPlugin implements ServiceManager, RectangularLogger, RectangularListener, PlayerManager {
 
     private SelectionManager selectionManager;
 
@@ -48,22 +48,16 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
         } else {
             shutdown("You are not running a supported server version");
         }
-
         this.selectionManager = new BukkitSelectionManager();
-
-        Map<SubCommand, RectangularCommand> subCommands = new HashMap<>();
-        subCommands.put(SubCommand.INFO, new Info());
-        subCommands.put(SubCommand.SETUP, (BukkitSelectionManager) selectionManager);
-        getCommand("rectangular").setExecutor(new MainCommand(subCommands));
-
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
-
         try {
             Rectangular.setup(this);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
+        final Command commandManager = Rectangular.get().getCommandManager();
+        getCommand("rectangular").setExecutor((commandSender, command, s, strings) -> commandSender instanceof ConsoleCommandSender
+                || commandManager.handle(BukkitUtil.getPlayer((Player) commandSender), strings).getCommandResult() == CommandHandlingOutput.SUCCESS);
         Rectangular.get().getEventManager().register(this);
     }
 
@@ -86,17 +80,32 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
                 bukkitPlayer.deleteIndicators();
                 if (bukkitPlayer.isInRegion()) {
                     Region r = bukkitPlayer.getRegion();
-                    for (Rectangle re : r.getRectangles()) {
+
+                    ImmutableList<Vector2> corners = r.getCorners();
+                    for (int i = 0; i < corners.size(); i++) {
+                        Location location = BukkitUtil.vectorToLocation(player.getWorld(), corners.get(i), player.getLocation().getY() + 0.5d);
+                        location.add(0, -0.3d, 0);
+                        bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
+                                DyeColor.values()[i].name());
+                    }
+                    for (Vector2 vector2 : r.getOutline(false)) {
+                        Location location = BukkitUtil.vectorToLocation(player.getWorld(), vector2, player.getLocation().getY() + 0.5d);
+                        location.add(0, -0.3d, 0);
+                        bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
+                                DyeColor.BLACK.name());
+                    }
+
+                    /* for (Rectangle re : r.getRectangles()) {
                         for (Vector2 vector2 : re.getOutline()) {
                             Location location = BukkitUtil.vectorToLocation(player.getWorld(), vector2, player.getLocation().getY() + 0.5d);
                             location.add(0, 1.3d, 0);
                             bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
                                     DyeColor.values()[(int)(Math.random() * DyeColor.values().length)].name());
                         }
-                    }
+                    } */
                 }
             }
-        }, 0L, 5L);
+        }, 0L, 20L);
         // emd #temp1
     }
 
@@ -139,8 +148,23 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
     }
 
     @Override
+    public PlayerManager getPlayerManager() {
+        return this;
+    }
+
+    @Override
     public RectangularLogger info(String str) {
         getLogger().info(str);
         return this;
+    }
+
+    @Override
+    public RectangularPlayer getPlayer(String username) {
+        return BukkitUtil.getPlayer(Bukkit.getPlayer(username));
+    }
+
+    @Override
+    public RectangularPlayer getPlayer(UUID uuid) {
+        return BukkitUtil.getPlayer(Bukkit.getPlayer(uuid));
     }
 }

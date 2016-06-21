@@ -1,5 +1,8 @@
 package com.intellectualsites.rectangular.bukkit;
 
+import com.intellectualsites.commands.Command;
+import com.intellectualsites.commands.CommandManager;
+import com.intellectualsites.commands.argument.Argument;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
@@ -11,6 +14,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -127,5 +131,15 @@ public class BukkitPlayer implements RectangularPlayer {
             return; // Otherwise it will create buggy duplicates :/
         }
         armorStandCache.put(x + ";" + y + ";" + z, RectangularPlugin.getNmsImplementation().getArmorStandManager().spawn(this, x, y, z, DyeColor.valueOf(colour.toUpperCase())));
+    }
+
+    @Override
+    public boolean hasAttachment(String a) {
+        return player.hasPermission(a);
+    }
+
+    @Override
+    public void sendRequiredArgumentsList(CommandManager manager, Command cmd, Collection<Argument> required, String usage) {
+
     }
 }

@@ -129,4 +129,18 @@ public class Vector2 {
     public String toString() {
         return "X:" + getX() + ",Y:" + getY();
     }
+
+    public Vector2 divide(int a) {
+        this.x /= a;
+        this.y /= a;
+        return this;
+    }
+
+    public double getAngle(Vector2 target) {
+        double angle = Math.toDegrees(Math.atan2(target.y - y, target.x - x));
+        if (angle < 0) {
+            angle += 360;
+        }
+        return angle;
+    }
 }
