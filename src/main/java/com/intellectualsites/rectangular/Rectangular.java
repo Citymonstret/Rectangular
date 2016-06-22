@@ -105,7 +105,7 @@ public final class Rectangular {
         ContainerManager containerManager = new ContainerManager();
         containerManager.addContainerFactory(this.worldManager);
 
-        this.regionManager = new RegionManager(containerManager, db);
+        this.regionManager = new RegionManager(containerManager);
 
         logger.accept("Loading regions async...");
         provider.runAsync(() -> regionManager.load());
