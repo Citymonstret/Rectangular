@@ -15,7 +15,12 @@ public abstract class Command extends CommandManager {
     private Class requiredType = Object.class;
     private String command, usage = "", description = "", permission = "";
     private String[] aliases = new String[0];
+
+    private int orderIndex = Integer.MAX_VALUE;
+
+    protected Map<Integer, String> order = new HashMap<>();
     protected Map<String, Parserable> requiredArguments = new LinkedHashMap<>();
+
     private Parserable context = null;
 
     public Command() {
@@ -157,12 +162,18 @@ public abstract class Command extends CommandManager {
     public <T> Command withArgument(String name, Parser<T> argumentType, String desc) {
         // Argument argument = new Argument<T>(name, argumentType, desc);
         Parserable parserable = new Parserable<T>(name, argumentType, desc);
+        order.put(orderIndex--, name);
         requiredArguments.put(name, parserable);
         return this;
     }
 
     public <T> Command withArgument(Parserable<T> argument) {
+        order.put(orderIndex--, argument.getName());
         requiredArguments.put(argument.getName(), argument);
         return this;
+    }
+
+    public Map<Integer,String> getOrder() {
+        return order;
     }
 }

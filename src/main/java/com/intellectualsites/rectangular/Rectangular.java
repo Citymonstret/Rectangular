@@ -3,6 +3,7 @@ package com.intellectualsites.rectangular;
 import com.intellectualsites.commands.Command;
 import com.intellectualsites.rectangular.command.RectangularCommandManager;
 import com.intellectualsites.rectangular.command.impl.Info;
+import com.intellectualsites.rectangular.command.impl.SetMeta;
 import com.intellectualsites.rectangular.command.impl.Test;
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.database.RectangularDBMySQL;
@@ -54,6 +55,7 @@ public final class Rectangular {
     private Rectangular(final ServiceManager provider) {
         commandManager.createCommand(new Info());
         commandManager.createCommand(new Test());
+        commandManager.createCommand(new SetMeta());
 
         // Setup the service manager
         Consumer<String> logger = s -> provider.logger().info(s);

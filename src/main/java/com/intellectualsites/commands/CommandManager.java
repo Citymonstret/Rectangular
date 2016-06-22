@@ -128,7 +128,7 @@ public class CommandManager {
                 cmd = commands.get(aliasMapping.get(command));
             }
 
-            Map<String, Object> valueMapping = new HashMap<String, Object>();
+            Map<String, Object> valueMapping = new LinkedHashMap<String, Object>();
             boolean contextFetched = false;
 
             if (cmd == null) commandFetch: {
@@ -183,6 +183,7 @@ public class CommandManager {
                 break scope;
             }
             // Now the fun stuff is beginning :D
+            Map<Integer, String> order = cmd.getOrder();
             Map<String, Parserable> requiredArguments = cmd.getRequiredArguments();
             if (requiredArguments.size() > 0) {
                 boolean success = true;
@@ -190,9 +191,11 @@ public class CommandManager {
                     success = false;
                 } else {
                     int index = 0;
-                    for (Map.Entry<String, Parserable> requiredArgument : requiredArguments.entrySet()) {
+                    for (int orderIndex = Integer.MAX_VALUE; orderIndex > Integer.MAX_VALUE - order.size(); orderIndex--) {
+                        String name = order.get(orderIndex);
+                        Parserable parserable = requiredArguments.get(name);
                         Object value;
-                        if (requiredArgument.getValue().getParser() instanceof InstantArray) {
+                        if (parserable.getParser() instanceof InstantArray) {
                             StringBuilder cache = new StringBuilder();
                             for (int i = index; i < args.length; i++) {
                                 if (cache.toString().isEmpty()) {
@@ -203,13 +206,13 @@ public class CommandManager {
                             }
                             value = cache.toString();
                         } else {
-                            value = requiredArgument.getValue().parse(args[index++]);
+                            value = parserable.parse(args[index++]);
                         }
                         if (value == null) {
                             success = false;
                             break;
                         } else {
-                            valueMapping.put(requiredArgument.getValue().getName(), value);
+                            valueMapping.put(name, value);
                         }
                     }
                 }

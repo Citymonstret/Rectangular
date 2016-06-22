@@ -16,10 +16,7 @@ import org.polyjdbc.core.schema.SchemaInspector;
 import org.polyjdbc.core.schema.SchemaManager;
 import org.polyjdbc.core.schema.model.Schema;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 public abstract class RectangularDB {
@@ -39,7 +36,7 @@ public abstract class RectangularDB {
     }
 
     public String getPlayerMetaTableName() {
-        return prefix + "player_meta";
+        return prefix + "player";
     }
 
     private PolyJDBC polyJDBC;
@@ -108,9 +105,9 @@ public abstract class RectangularDB {
                 schema.addRelation(getPlayerMetaTableName())
                         .withAttribute().integer("player_meta_id").withAdditionalModifiers("AUTO_INCREMENT")
                         .notNull().and()
-                        .withAttribute().string("uuid").notNull().and()
-                        .withAttribute().string("key").notNull().and()
-                        .withAttribute().string("value").notNull().withDefaultValue("").and()
+                        .withAttribute().string("uuid").notNull().withMaxLength(48).and()
+                        .withAttribute().string("mkey").notNull().withMaxLength(32).and()
+                        .withAttribute().string("value").notNull().withMaxLength(255).and()
                         .primaryKey("pk_" + getPlayerMetaTableName()).using("player_meta_id").and()
                         .build();
             }
@@ -150,10 +147,15 @@ public abstract class RectangularDB {
                     resultSet.getString("owner"), resultSet.getString("data"));
 
     private final ObjectMapper<PlayerMeta> playerMetaMapper = resultSet -> {
+
         Map<String, byte[]> map = new HashMap<>();
-        while (resultSet.next()) {
-            map.put(resultSet.getString("key"), resultSet.getString("value").getBytes());
+
+        boolean cont = true;
+        while (cont) {
+            map.put(resultSet.getString("mkey"), resultSet.getString("value").getBytes());
+            cont = resultSet.next();
         }
+
         return new PlayerMeta(map);
     };
 
@@ -163,25 +165,34 @@ public abstract class RectangularDB {
 
     public void addPlayerMeta(String uuid, String key, byte[] value) {
         InsertQuery query = getPolyJDBC().query().insert().into(getPlayerMetaTableName())
-                .value("uuid", uuid).value("key", key).value("value", new String(value));
+                .value("uuid", uuid).value("mkey", key).value("value", new String(value));
         getPolyJDBC().simpleQueryRunner().insert(query);
     }
 
     public void updatePlayerMeta(String uuid, String key, byte[] value) {
         UpdateQuery query = getPolyJDBC().query().update(getPlayerMetaTableName()).set("value", new String(value))
-                .where("uuid = :uniqueId AND key = :ukey").withArgument("uniqueId", uuid).withArgument("ukey", key);
+                .where("uuid = :uniqueId AND mkey = :ukey").withArgument("uniqueId", uuid).withArgument("ukey", key);
         getPolyJDBC().simpleQueryRunner().update(query);
     }
 
     public  void removePlayerMeta(String uuid, String key) {
         DeleteQuery query = getPolyJDBC().query().delete().from(getPlayerMetaTableName())
-                .where("uuid = :uniqueId AND key = :ukey").withArgument("uniqueId", uuid).withArgument("ukey", key);
+                .where("uuid = :uniqueId AND mkey = :ukey").withArgument("uniqueId", uuid).withArgument("ukey", key);
         getPolyJDBC().queryRunner().delete(query);
     }
 
     public PlayerMeta loadPlayerMeta(String uuid) {
-        SelectQuery query = getPolyJDBC().query().selectAll().from(getPlayerMetaTableName()).where("uuid = :uniqueId").withArgument("uniqueId", uuid);
-        return getPolyJDBC().simpleQueryRunner().queryUnique(query, playerMetaMapper).associate(uuid);
+        SelectQuery query = getPolyJDBC().query().selectAll().from(getPlayerMetaTableName()).where("uuid = \"" + uuid + "\"");
+        List<PlayerMeta> metaList = getPolyJDBC().simpleQueryRunner().queryList(query, playerMetaMapper);
+
+        PlayerMeta m;
+        if (metaList.isEmpty()) {
+            m = new PlayerMeta(new HashMap<>());
+        } else {
+            m = metaList.get(0);
+        }
+
+        return m.associate(uuid);
     }
 
     public Set<RegionData> loadRegionData() {

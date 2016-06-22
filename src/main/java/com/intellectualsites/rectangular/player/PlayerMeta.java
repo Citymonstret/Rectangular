@@ -91,7 +91,7 @@ public class PlayerMeta {
         }
     }
 
-    interface MetaParser<T> {
+    public interface MetaParser<T> {
         byte[] toBytes(T in);
         T fromBytes(byte[] in);
     }
