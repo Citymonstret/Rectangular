@@ -18,6 +18,7 @@ class ArmorStandManager implements com.intellectualsites.rectangular.bukkit.Armo
         armorStand.setInvisible(true);
         armorStand.setSmall(true);
         armorStand.setNoGravity(true);
+        armorStand.aQ = 45f;
         armorStand.setSilent(true);
         armorStand.setInvulnerable(true);
         Packet packet = new PacketPlayOutSpawnEntityLiving(armorStand);

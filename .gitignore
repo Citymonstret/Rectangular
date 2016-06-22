@@ -133,3 +133,9 @@ nbdist/
 nbactions.xml
 .nb-gradle/
 
+replay_pid5416.log
+replay_pid14204.log
+*.iml
+*.xml
+gradle/wrapper/gradle-wrapper.properties
+mover.bat
