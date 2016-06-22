@@ -93,9 +93,7 @@ public final class Rectangular {
             return; // Not even needed, but keeping it there anyhow
         }
 
-        if (!db.schemaExists()) {
-            db.createSchema();
-        }
+        db.createSchema();
 
         logger.accept("Connection established!");
 

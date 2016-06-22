@@ -2,13 +2,13 @@ package com.intellectualsites.rectangular.bukkit;
 
 import com.intellectualsites.commands.Command;
 import com.intellectualsites.commands.CommandManager;
-import com.intellectualsites.commands.argument.Argument;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import com.intellectualsites.rectangular.item.Item;
 import com.intellectualsites.rectangular.parser.Parserable;
 import com.intellectualsites.rectangular.player.PlayerEventObserver;
+import com.intellectualsites.rectangular.player.PlayerMeta;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 import lombok.Getter;
 import org.bukkit.ChatColor;
@@ -33,6 +33,9 @@ public class BukkitPlayer implements RectangularPlayer {
     @Getter
     private final PlayerEventObserver eventObserver;
 
+    @Getter
+    private PlayerMeta meta;
+
     private Region topLevelRegion;
 
     private boolean regionFetched = false;
@@ -41,6 +44,26 @@ public class BukkitPlayer implements RectangularPlayer {
         this.id = idPool++;
         this.player = player;
         this.eventObserver = new PlayerEventObserver(this);
+        // Make sure that it's loaded properly
+        PlayerMeta temp = Rectangular.get().getServiceManager()
+                .getPlayerManager().unloadMeta(player.getUniqueId());
+        if (temp == null) {
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    PlayerMeta temp = Rectangular.get().getServiceManager()
+                            .getPlayerManager().unloadMeta(player.getUniqueId());
+                    if (temp == null) {
+                        Rectangular.get().getServiceManager().runSyncDelayed(this, 5L /* 1/4 of a second */);
+                    } else {
+                        meta = temp;
+                    }
+                }
+            };
+            Rectangular.get().getServiceManager().runSync(runnable);
+        } else {
+            meta = temp;
+        }
     }
 
     @Override
@@ -124,6 +147,11 @@ public class BukkitPlayer implements RectangularPlayer {
         org.bukkit.inventory.ItemStack itemStack = BukkitUtil.itemToItemStack(item);
         player.getInventory().addItem(itemStack);
         player.updateInventory();
+    }
+
+    @Override
+    public PlayerMeta getMeta() {
+        return meta;
     }
 
     @Override

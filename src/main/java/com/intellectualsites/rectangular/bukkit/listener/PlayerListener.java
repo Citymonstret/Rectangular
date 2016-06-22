@@ -1,10 +1,12 @@
 package com.intellectualsites.rectangular.bukkit.listener;
 
+import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.bukkit.BukkitPlayer;
 import com.intellectualsites.rectangular.bukkit.BukkitUtil;
 import com.intellectualsites.rectangular.core.Region;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -14,6 +16,11 @@ public class PlayerListener implements Listener {
     public void onPlayerLogout(PlayerQuitEvent event) {
         // Do this lastly
         BukkitUtil.removePlayer(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onPreLogin(AsyncPlayerPreLoginEvent event) {
+        Rectangular.get().getServiceManager().getPlayerManager().loadMeta(event.getUniqueId());
     }
 
     @EventHandler

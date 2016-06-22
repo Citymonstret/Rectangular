@@ -39,6 +39,8 @@ public interface RectangularPlayer extends CommandCaller<RectangularPlayer> {
 
     void giveItem(Item item);
 
+    PlayerMeta getMeta();
+
     @Override
     default RectangularPlayer getSuperCaller() {
         return this;

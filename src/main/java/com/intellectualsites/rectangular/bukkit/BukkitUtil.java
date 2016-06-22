@@ -1,6 +1,7 @@
 package com.intellectualsites.rectangular.bukkit;
 
 import com.google.common.base.Preconditions;
+import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.item.Item;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.NonNull;
@@ -30,6 +31,8 @@ public class BukkitUtil {
 
     public static void removePlayer(@NonNull final UUID uuid) {
         playerRegistry.remove(uuid.toString());
+        // Just in case the player disconnected before it was fetched
+        Rectangular.get().getServiceManager().getPlayerManager().unloadMeta(uuid);
     }
 
     public static Vector2 locationToVector(@NonNull final Location location) {

@@ -24,4 +24,5 @@ public interface ServiceManager extends CoreModule {
 
     PlayerManager getPlayerManager();
 
+    void runSyncDelayed(Runnable r, long time);
 }

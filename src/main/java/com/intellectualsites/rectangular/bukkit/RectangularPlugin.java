@@ -16,6 +16,7 @@ import com.intellectualsites.rectangular.logging.RectangularLogger;
 import com.intellectualsites.rectangular.manager.PlayerManager;
 import com.intellectualsites.rectangular.manager.ServiceManager;
 import com.intellectualsites.rectangular.manager.WorldManager;
+import com.intellectualsites.rectangular.player.PlayerMeta;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 import com.intellectualsites.rectangular.selection.SelectionManager;
 import com.intellectualsites.rectangular.vector.Vector2;
@@ -29,8 +30,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RectangularPlugin extends JavaPlugin implements ServiceManager, RectangularLogger, RectangularListener, PlayerManager {
 
@@ -153,6 +156,11 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
     }
 
     @Override
+    public void runSyncDelayed(Runnable r, long time) {
+        getServer().getScheduler().runTaskLater(this, r, time);
+    }
+
+    @Override
     public RectangularLogger info(String str) {
         getLogger().info(str);
         return this;
@@ -166,5 +174,25 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
     @Override
     public RectangularPlayer getPlayer(UUID uuid) {
         return BukkitUtil.getPlayer(Bukkit.getPlayer(uuid));
+    }
+
+    private Map<String, PlayerMeta> preFetched = new ConcurrentHashMap<>();
+
+    @Override
+    public PlayerMeta unloadMeta(UUID uuid) {
+        if (preFetched.containsKey(uuid.toString())) {
+            return preFetched.remove(uuid.toString());
+        }
+        return null;
+    }
+
+    @Override
+    public void loadMeta(final UUID uuid) {
+        Runnable runnable = () -> preFetched.put(uuid.toString(), Rectangular.get().getDatabase().loadPlayerMeta(uuid));
+        if (Bukkit.isPrimaryThread()) {
+            runAsync(runnable);
+        } else {
+            runnable.run();
+        }
     }
 }
