@@ -2,6 +2,7 @@ package com.intellectualsites.rectangular.core;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Region extends RegionContainer {
+public class SimpleRegion extends RegionContainer implements Region {
 
     @Getter
     private Rectangle boundingBox;
@@ -44,17 +45,19 @@ public class Region extends RegionContainer {
     @Getter
     private RegionData data;
 
-    public Region(int id, int level, String owningContainer) {
+    public SimpleRegion(int id, int level, String owningContainer) {
         super(level, null);
 
         this.id = id;
         this.owningContainer = owningContainer;
     }
 
+    @Override
     public void setRectangles(Collection<Rectangle> rectangles) {
         this.rectangles = rectangles.toArray(new Rectangle[rectangles.size()]);
     }
 
+    @Override
     public void compile() {
         // Initial values are just crayyyy
         int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE,
@@ -146,6 +149,7 @@ public class Region extends RegionContainer {
 
     }
 
+    @Override
     public boolean isInRegion(Vector2 v2) {
         if (boundingBox.isInside(v2)) {
             Quadrant quadrant = Quadrant.findQuadrant(quadrants, midX, midY, v2);
@@ -158,7 +162,8 @@ public class Region extends RegionContainer {
         return false;
     }
 
-    private void compileCorners() {
+    @Override
+    public void compileCorners() {
         Area nativeArea = new Area();
         for (Rectangle rectangle : rectangles) {
             nativeArea.add(rectangle.toArea(boundingBox.getMin()));
@@ -173,6 +178,7 @@ public class Region extends RegionContainer {
         this.corners = ImmutableList.copyOf(list);
     }
 
+    @Override
     public ImmutableList<Vector2> getCorners() {
         if (corners == null) {
             compileCorners();
@@ -180,6 +186,7 @@ public class Region extends RegionContainer {
         return corners;
     }
 
+    @Override
     public ImmutableCollection<Vector2> getOutline(boolean includeCorners) {
         List<Vector2> points = new ArrayList<>();
         List<Vector2> toRemove = new ArrayList<>();

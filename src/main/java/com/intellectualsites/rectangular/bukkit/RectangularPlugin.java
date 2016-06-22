@@ -5,10 +5,10 @@ import com.google.common.eventbus.Subscribe;
 import com.intellectualsites.commands.Command;
 import com.intellectualsites.commands.CommandHandlingOutput;
 import com.intellectualsites.rectangular.Rectangular;
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.bukkit.listener.PlayerListener;
 import com.intellectualsites.rectangular.bukkit.nms.NMSImplementation;
 import com.intellectualsites.rectangular.core.Rectangle;
-import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.event.RectangularListener;
 import com.intellectualsites.rectangular.event.impl.PlayerEnteredRegionEvent;
 import com.intellectualsites.rectangular.event.impl.PlayerLeftRegionEvent;
@@ -66,28 +66,28 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
     }
 
     @Subscribe
-    public void onPlayerLeftRegion(PlayerLeftRegionEvent event) {
+    public void onPlayerLeftRegion(final PlayerLeftRegionEvent event) {
         event.getPlayer().sendMessage("&cYou left region: " + event.getOldRegion().getId());
     }
 
     @Subscribe
-    public void onPlayerEnterRegion(PlayerEnteredRegionEvent event) {
+    public void onPlayerEnterRegion(final PlayerEnteredRegionEvent event) {
         event.getPlayer().sendMessage("&cYou entered region: " + event.getRegion().getId());
     }
 
     @Subscribe
-    public void onRegionManagerLoad(RegionManagerDoneEvent event) {
+    public void onRegionManagerLoad(final RegionManagerDoneEvent event) {
         // start #temp1 ::= Temporary test code
-        getServer().getScheduler().runTaskTimer(this, () -> {
-            for (Player player : Bukkit.getOnlinePlayers()) {
+        this.getServer().getScheduler().runTaskTimer(this, () -> {
+            for (final Player player : Bukkit.getOnlinePlayers()) {
                 // Get the player wrapper
-                BukkitPlayer bukkitPlayer = BukkitUtil.getPlayer(player);
+                final BukkitPlayer bukkitPlayer = BukkitUtil.getPlayer(player);
 
                 // Check if a player is in a region
                 if (bukkitPlayer.isInRegion()) {
 
                     // Get the region the player is in
-                    Region r = bukkitPlayer.getRegion();
+                    final Region r = bukkitPlayer.getRegion();
 
                     // Check if the player meta data is loaded
                     if (bukkitPlayer.getMeta() != null /* Is loaded */) {
@@ -99,7 +99,7 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
                         // This caches the Y value of the player, so
                         // we don't have to send the indicators on each run
                         //
-                        int y = player.getLocation().getBlockY();
+                        final int y = player.getLocation().getBlockY();
                         if (bukkitPlayer.getMeta().hasMeta("indicatorY")) {
                             int tempY = bukkitPlayer.getMeta().getInt("indicatorY");
                             if (y != tempY) {
@@ -123,10 +123,10 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
                         - rectangles: Outline the rectangles with random colours
 
                          */
-                        String type = bukkitPlayer.getMeta().getMeta("indicators", PlayerMeta.Parsers.stringParser);
+                        final String type = bukkitPlayer.getMeta().getMeta("indicators", PlayerMeta.Parsers.stringParser);
                         switch (type) {
                             case "corners": {
-                                ImmutableList<Vector2> corners = r.getCorners();
+                                final ImmutableList<Vector2> corners = r.getCorners();
                                 for (int i = 0; i < corners.size(); i++) {
                                     Location location = BukkitUtil.vectorToLocation(player.getWorld(), corners.get(i), player.getLocation().getY() + 0.5d);
                                     location.add(0, -0.3d, 0);
@@ -135,14 +135,14 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
                                 }
                             } break;
                             case "corners_outline": {
-                                ImmutableList<Vector2> corners = r.getCorners();
+                                final ImmutableList<Vector2> corners = r.getCorners();
                                 for (int i = 0; i < corners.size(); i++) {
                                     Location location = BukkitUtil.vectorToLocation(player.getWorld(), corners.get(i), player.getLocation().getY() + 0.5d);
                                     location.add(0, -0.3d, 0);
                                     bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
                                             DyeColor.values()[i].name());
                                 }
-                                for (Vector2 vector2 : r.getOutline(false)) {
+                                for (final Vector2 vector2 : r.getOutline(false)) {
                                     Location location = BukkitUtil.vectorToLocation(player.getWorld(), vector2, player.getLocation().getY() + 0.5d);
                                     location.add(0, -0.3d, 0);
                                     bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),

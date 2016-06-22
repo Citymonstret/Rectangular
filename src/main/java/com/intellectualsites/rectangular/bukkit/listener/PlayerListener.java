@@ -1,9 +1,9 @@
 package com.intellectualsites.rectangular.bukkit.listener;
 
 import com.intellectualsites.rectangular.Rectangular;
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.bukkit.BukkitPlayer;
 import com.intellectualsites.rectangular.bukkit.BukkitUtil;
-import com.intellectualsites.rectangular.core.Region;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;

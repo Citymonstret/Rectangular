@@ -2,8 +2,8 @@ package com.intellectualsites.rectangular.manager;
 
 import com.intellectualsites.rectangular.CoreModule;
 import com.intellectualsites.rectangular.Rectangular;
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.core.ContainerFactory;
-import com.intellectualsites.rectangular.core.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import lombok.Getter;
 

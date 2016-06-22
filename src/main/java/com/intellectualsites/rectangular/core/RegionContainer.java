@@ -1,5 +1,6 @@
 package com.intellectualsites.rectangular.core;
 
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 import org.bukkit.Bukkit;

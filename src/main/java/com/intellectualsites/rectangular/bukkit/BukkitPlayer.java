@@ -3,7 +3,7 @@ package com.intellectualsites.rectangular.bukkit;
 import com.intellectualsites.commands.Command;
 import com.intellectualsites.commands.CommandManager;
 import com.intellectualsites.rectangular.Rectangular;
-import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import com.intellectualsites.rectangular.item.Item;
 import com.intellectualsites.rectangular.parser.Parserable;

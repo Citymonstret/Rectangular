@@ -1,6 +1,6 @@
 package com.intellectualsites.rectangular.event.impl;
 
-import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.event.PlayerEvent;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 

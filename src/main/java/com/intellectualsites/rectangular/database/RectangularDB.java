@@ -1,7 +1,9 @@
 package com.intellectualsites.rectangular.database;
 
+import com.google.common.collect.ImmutableSet;
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.core.Rectangle;
-import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.core.SimpleRegion;
 import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.player.PlayerMeta;
 import com.intellectualsites.rectangular.vector.Vector2;
@@ -129,9 +131,9 @@ public abstract class RectangularDB {
         return exists;
     }
 
-    public Set<Rectangle> loadRectangles() {
+    public ImmutableSet<Rectangle> loadRectangles() {
         SelectQuery query = getPolyJDBC().query().selectAll().from(getRectangleTableName());
-        return getPolyJDBC().simpleQueryRunner().querySet(query, rectangleMapper);
+        return ImmutableSet.copyOf(getPolyJDBC().simpleQueryRunner().querySet(query, rectangleMapper));
     }
 
     private final ObjectMapper<Rectangle> rectangleMapper = resultSet ->
@@ -140,7 +142,7 @@ public abstract class RectangularDB {
                     new Vector2(resultSet.getInt("maxX"), resultSet.getInt("maxY")));
 
     private final ObjectMapper<Region> regionMapper = resultSet ->
-            new Region(resultSet.getInt("region_id"), 1, resultSet.getString("container_id"));
+            new SimpleRegion(resultSet.getInt("region_id"), 1, resultSet.getString("container_id"));
 
     private final ObjectMapper<RegionData> regionDataMapper = resultSet ->
             new RegionData(resultSet.getInt("region_region_id"),
@@ -195,13 +197,13 @@ public abstract class RectangularDB {
         return m.associate(uuid);
     }
 
-    public Set<RegionData> loadRegionData() {
+    public ImmutableSet<RegionData> loadRegionData() {
         SelectQuery query = getPolyJDBC().query().selectAll().from(getRegionMetaTableName());
-        return getPolyJDBC().simpleQueryRunner().querySet(query, regionDataMapper);
+        return ImmutableSet.copyOf(getPolyJDBC().simpleQueryRunner().querySet(query, regionDataMapper));
     }
 
-    public Set<Region> loadRegions() {
+    public ImmutableSet<Region> loadRegions() {
         SelectQuery query = getPolyJDBC().query().selectAll().from(getMainTableName());
-        return getPolyJDBC().simpleQueryRunner().querySet(query, regionMapper);
+        return ImmutableSet.copyOf(getPolyJDBC().simpleQueryRunner().querySet(query, regionMapper));
     }
 }

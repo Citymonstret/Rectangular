@@ -1,7 +1,7 @@
 package com.intellectualsites.rectangular.player;
 
 import com.intellectualsites.rectangular.Rectangular;
-import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.event.impl.PlayerEnteredRegionEvent;
 import com.intellectualsites.rectangular.event.impl.PlayerLeftRegionEvent;
 import lombok.Getter;

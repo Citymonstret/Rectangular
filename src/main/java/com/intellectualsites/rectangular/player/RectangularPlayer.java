@@ -1,7 +1,7 @@
 package com.intellectualsites.rectangular.player;
 
 import com.intellectualsites.commands.callers.CommandCaller;
-import com.intellectualsites.rectangular.core.Region;
+import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import com.intellectualsites.rectangular.item.Item;
 
