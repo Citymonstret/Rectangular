@@ -12,6 +12,8 @@ import static com.intellectualsites.commands.CommandHandlingOutput.*;
 
 public class RectangularCommandManager extends Command {
 
+    public static RectangularCommandManager instance;
+
     @Getter
     private final MessageProvider messageProvider = new MessageProvider();
 
@@ -20,6 +22,8 @@ public class RectangularCommandManager extends Command {
         getManagerOptions().setUseAdvancedPermissions(false);
         getManagerOptions().setRequirePrefix(false);
         getManagerOptions().setUsageFormat(""); // Do not send internal type
+
+        instance = this;
     }
 
     @Override
@@ -64,6 +68,12 @@ public class RectangularCommandManager extends Command {
                         .getMessage(MessageProvider.MessageKey.USAGE)
                         .send(commandSender, "%usage", result.getCommand().getUsage());
                 break;
+            case ARGUMENT_ERROR:
+                getMessageProvider()
+                        .getMessage(MessageProvider.MessageKey.ARGUMENT_ERROR)
+                        .send(commandSender, new String[]{"%parserError", "%key"},
+                                new String[]{result.getCommandArgumentError().getResult().getError(),
+                                        result.getCommandArgumentError().getParserable().getName()});
             default:
                 // Unknown type
                 break;

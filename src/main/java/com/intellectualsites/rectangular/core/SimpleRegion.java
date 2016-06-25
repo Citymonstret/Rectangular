@@ -6,7 +6,9 @@ import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
+import lombok.val;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -38,22 +40,20 @@ public class SimpleRegion extends RegionContainer implements Region {
     @Getter
     private final String owningContainer;
 
-    @Getter
     private ImmutableList<Vector2> corners;
 
     @Setter
     @Getter
     private RegionData data;
 
-    public SimpleRegion(int id, int level, String owningContainer) {
+    public SimpleRegion(final int id, final int level, final String owningContainer) {
         super(level, null);
-
         this.id = id;
         this.owningContainer = owningContainer;
     }
 
     @Override
-    public void setRectangles(Collection<Rectangle> rectangles) {
+    public void setRectangles(@NonNull final Collection<Rectangle> rectangles) {
         this.rectangles = rectangles.toArray(new Rectangle[rectangles.size()]);
     }
 
@@ -65,19 +65,13 @@ public class SimpleRegion extends RegionContainer implements Region {
 
         // Calculate the bounds
         for (final Rectangle r : rectangles) {
-            if (r.getMin().getX() < minX) {
-                minX = r.getMin().getX();
-            }
-            if (r.getMin().getY() < minY) {
-                minY = r.getMin().getY();
-            }
-            if (r.getMax().getY() > maxY) {
-                maxY = r.getMax().getY();
-            }
-            if (r.getMax().getX() > maxX) {
-                maxX = r.getMax().getX();
-            }
+            minX = Math.min(minX, r.getMin().getX());
+            minY = Math.min(minY, r.getMin().getY());
+            maxY = Math.max(maxY, r.getMax().getY());
+            maxX = Math.max(maxX, r.getMax().getX());
         }
+
+        // Update the bounds
         this.boundingBox = new Rectangle(new Vector2(minX, minY), new Vector2(maxX, maxY));
         super.getBounds().copyFrom(this.boundingBox); // Will update the region container
 
@@ -89,20 +83,11 @@ public class SimpleRegion extends RegionContainer implements Region {
         this.midX = this.boundingBox.getMin().getX() + (width / 2);
         this.midY = this.boundingBox.getMin().getY() + (height / 2);
 
-        //
-        // TODO: Instructions below
-        //
-        // Make it so that each quadrant may contain
-        // its own quadrants, if there are more than N
-        // number of rectangles within the quadrant, to
-        // speedup the looping
-        //
-
         // First Quadrant
         {
-            Vector2 min = new Vector2((int) midX, (int) midY);
-            Vector2 max = this.boundingBox.getMax().clone();
-            Quadrant quadrant = new Quadrant(min,max);
+            final Vector2 min = new Vector2((int) midX, (int) midY);
+            final Vector2 max = this.boundingBox.getMax().clone();
+            final Quadrant quadrant = new Quadrant(min,max);
             for (int i = 0; i < rectangles.length; i++) {
                 if (quadrant.overlaps(rectangles[i])) {
                     quadrant.getIds().add(i);
@@ -112,9 +97,9 @@ public class SimpleRegion extends RegionContainer implements Region {
         }
         // Second Quadrant
         {
-            Vector2 min = new Vector2((int) midX, boundingBox.getMin().getY());
-            Vector2 max = new Vector2(boundingBox.getMax().getX(), (int) midY);
-            Quadrant quadrant = new Quadrant(min,max);
+            final Vector2 min = new Vector2((int) midX, boundingBox.getMin().getY());
+            final Vector2 max = new Vector2(boundingBox.getMax().getX(), (int) midY);
+            final Quadrant quadrant = new Quadrant(min,max);
             for (int i = 0; i < rectangles.length; i++) {
                 if (quadrant.overlaps(rectangles[i])) {
                     quadrant.getIds().add(i);
@@ -124,9 +109,9 @@ public class SimpleRegion extends RegionContainer implements Region {
         }
         // Third Quadrant
         {
-            Vector2 min = this.boundingBox.getMin().clone();
-            Vector2 max = new Vector2((int) midX, (int) midY);
-            Quadrant quadrant = new Quadrant(min,max);
+            final Vector2 min = this.boundingBox.getMin().clone();
+            final Vector2 max = new Vector2((int) midX, (int) midY);
+            final Quadrant quadrant = new Quadrant(min,max);
             for (int i = 0; i < rectangles.length; i++) {
                 if (quadrant.overlaps(rectangles[i])) {
                     quadrant.getIds().add(i);
@@ -136,9 +121,9 @@ public class SimpleRegion extends RegionContainer implements Region {
         }
         // Fourth Quadrant
         {
-            Vector2 min = new Vector2(boundingBox.getMin().getX(), (int) midY);
-            Vector2 max = new Vector2((int) midX, boundingBox.getMax().getY());
-            Quadrant quadrant = new Quadrant(min,max);
+            final Vector2 min = new Vector2(boundingBox.getMin().getX(), (int) midY);
+            final Vector2 max = new Vector2((int) midX, boundingBox.getMax().getY());
+            final Quadrant quadrant = new Quadrant(min,max);
             for (int i = 0; i < rectangles.length; i++) {
                 if (quadrant.overlaps(rectangles[i])) {
                     quadrant.getIds().add(i);
@@ -146,15 +131,14 @@ public class SimpleRegion extends RegionContainer implements Region {
             }
             this.quadrants[3] = quadrant;
         }
-
     }
 
     @Override
-    public boolean isInRegion(Vector2 v2) {
-        if (boundingBox.isInside(v2)) {
-            Quadrant quadrant = Quadrant.findQuadrant(quadrants, midX, midY, v2);
-            for (int rectangleID : quadrant.getIds()) {
-                if (rectangles[rectangleID].isInside(v2)) {
+    public boolean isInRegion(@NonNull final Vector2 v2) {
+        if (this.boundingBox.isInside(v2)) {
+            final Quadrant quadrant = Quadrant.findQuadrant(quadrants, midX, midY, v2);
+            for (final int rectangleID : quadrant.getIds()) {
+                if (this.rectangles[rectangleID].isInside(v2)) {
                     return true;
                 }
             }
@@ -164,15 +148,15 @@ public class SimpleRegion extends RegionContainer implements Region {
 
     @Override
     public void compileCorners() {
-        Area nativeArea = new Area();
-        for (Rectangle rectangle : rectangles) {
+        final Area nativeArea = new Area();
+        for (final Rectangle rectangle : rectangles) {
             nativeArea.add(rectangle.toArea(boundingBox.getMin()));
         }
-        List<Vector2> list = new ArrayList<>();
-        double coords[] = new double[6];
-        AffineTransform transform = AffineTransform.getRotateInstance(1,0);
+        final List<Vector2> list = new ArrayList<>();
+        final double coords[] = new double[6];
+        final AffineTransform transform = AffineTransform.getRotateInstance(1,0);
         for (PathIterator pathIterator = nativeArea.getPathIterator(transform); !pathIterator.isDone(); pathIterator.next()) {
-            int type = pathIterator.currentSegment(coords);
+            pathIterator.currentSegment(coords);
             list.add(new Vector2(boundingBox.getMin().getX() + (int) coords[0], boundingBox.getMin().getY() + (int) coords[1]));
         }
         this.corners = ImmutableList.copyOf(list);
@@ -187,11 +171,11 @@ public class SimpleRegion extends RegionContainer implements Region {
     }
 
     @Override
-    public ImmutableCollection<Vector2> getOutline(boolean includeCorners) {
-        List<Vector2> points = new ArrayList<>();
-        List<Vector2> toRemove = new ArrayList<>();
-        for (Rectangle rectangle : rectangles) {
-            for (Vector2 v2 : rectangle.getOutline()) {
+    public ImmutableCollection<Vector2> getOutline(final boolean includeCorners) {
+        final List<Vector2> points = new ArrayList<>();
+        final List<Vector2> toRemove = new ArrayList<>();
+        for (val rectangle : rectangles) {
+            for (val v2 : rectangle.getOutline()) {
                 if (points.contains(v2)) {
                     toRemove.add(v2);
                 } else {
@@ -200,7 +184,7 @@ public class SimpleRegion extends RegionContainer implements Region {
             }
         }
         if (includeCorners) {
-            for (Vector2 v2 : getCorners()) {
+            for (val v2 : getCorners()) {
                 if (points.contains(v2)) {
                     toRemove.add(v2);
                 } else {

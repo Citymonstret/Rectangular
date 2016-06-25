@@ -2,6 +2,7 @@ package com.intellectualsites.rectangular.parser.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.intellectualsites.rectangular.parser.Parser;
+import com.intellectualsites.rectangular.parser.ParserResult;
 
 public class BooleanParser extends Parser<Boolean> {
 
@@ -20,12 +21,12 @@ public class BooleanParser extends Parser<Boolean> {
     }
 
     @Override
-    public Boolean parse(String in) {
+    public ParserResult<Boolean> parse(String in) {
         if (trueValues.contains(in.toLowerCase())) {
-            return true;
+            return new ParserResult<>(true, true);
         } else if (falseValues.contains(in.toLowerCase())) {
-            return false;
+            return new ParserResult<>(false, true);
         }
-        return null;
+        return new ParserResult<>(in + " is not a boolean");
     }
 }

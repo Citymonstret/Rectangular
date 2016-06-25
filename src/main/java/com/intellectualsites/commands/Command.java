@@ -127,7 +127,7 @@ public abstract class Command extends CommandManager {
     }
 
     final public String getUsage() {
-        return this.usage;
+        return this.usage.isEmpty() ? command : usage;
     }
 
     final public String getPermission() {

@@ -2,13 +2,13 @@ package com.intellectualsites.rectangular.manager;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.intellectualsites.rectangular.CoreModule;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.core.Quadrant;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.core.RegionContainer;
-import com.intellectualsites.rectangular.data.RegionData;
 import com.intellectualsites.rectangular.event.impl.RegionManagerDoneEvent;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.NonNull;
@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -33,7 +34,6 @@ public class RegionManager implements CoreModule {
     public void load() {
         ImmutableCollection<Rectangle> temp = Rectangular.get().getDatabase().loadRectangles();
         ImmutableCollection<Region> regions = Rectangular.get().getDatabase().loadRegions();
-        ImmutableCollection<RegionData> regionData = Rectangular.get().getDatabase().loadRegionData();
 
         for (final Region region : regions) {
             region.setRectangles(temp.stream()
@@ -44,14 +44,21 @@ public class RegionManager implements CoreModule {
         }
 
         for (Region region : regionMap.values()) {
-            RegionContainer container = containerManager
-                    .getRegionContainer(region.getOwningContainer());
-            container.compileQuadrants(region);
+            try {
+                RegionContainer container = containerManager
+                        .getRegionContainer(region.getOwningContainer());
+                container.compileQuadrants(region);
+            } catch (final Exception e) {
+                Rectangular.get().getServiceManager().logger().warning("Failed to find container: " + region.getOwningContainer());
+            }
         }
 
-        // Yay! <3
-        for (final RegionData data : regionData) {
-            getRegion(data.getRegionID()).setData(data);
+        for (final int regionID : regionMap.keySet()) {
+            try {
+                regionMap.get(regionID).setData(Rectangular.get().getDatabase().loadRegionData(regionID));
+            } catch (final Exception e) {
+                Rectangular.get().getServiceManager().logger().warning("Failed to load data for: " + regionID);
+            }
         }
 
         // tc == Temporary
@@ -79,7 +86,11 @@ public class RegionManager implements CoreModule {
         if (region.getOwningContainer().startsWith("w:")) {
             ((WorldManager) containerManager.getContainerFactory('w')).getWorldContainers().get(region.getOwningContainer()).compileQuadrants(region);
         } else {
-            ((RegionContainer) regionMap.get(idMapping.get(region.getOwningContainer()))).compileQuadrants(region);
+            try {
+                ((RegionContainer) regionMap.get(idMapping.get(region.getOwningContainer()))).compileQuadrants(region);
+            } catch (final Exception e) {
+                e.printStackTrace(); // TODO: Fix
+            }
         }
     }
 
@@ -152,6 +163,14 @@ public class RegionManager implements CoreModule {
 
         // Nah, didn't find it :/
         return null;
+    }
+
+    public ImmutableCollection<Region> filterRegions(Predicate<Region> filter) {
+        return ImmutableList.copyOf(getRegions().stream().filter(filter).collect(Collectors.toList()));
+    }
+
+    public ImmutableCollection<Region> getRegions() {
+        return ImmutableSet.copyOf(regionMap.values());
     }
 
     /**

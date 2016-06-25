@@ -51,15 +51,16 @@ public class RegionData {
         }
     }
 
-    public RegionData(int regionID, String owner, String packedData) {
+    public RegionData(int regionID, String owner, Map<String, String> entries) {
         this.regionID = regionID;
         this.owner = owner;
-        String[] parts = packedData.split(";");
-        for (String s : parts) {
-            String[] split = s.split(":");
-            String key = split[0];
-            DataType type = getDataType(key);
-            dataEntries.get(type).put(key, new DataEntry(type, key, split[1]));
+
+        for (Map.Entry<String, String> entry : entries.entrySet()) {
+            if (!entry.getKey().startsWith("@")) {
+                continue; // Skip owner, etc
+            }
+            DataType type = getDataType(entry.getKey());
+            dataEntries.get(type).put(entry.getKey(), new DataEntry(type, entry.getKey(), entry.getValue()));
         }
     }
 

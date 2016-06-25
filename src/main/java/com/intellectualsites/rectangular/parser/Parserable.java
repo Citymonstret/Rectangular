@@ -15,7 +15,7 @@ public class Parserable<T> {
     @Getter
     private final String desc;
 
-    public T parse(String in) {
+    public ParserResult<T> parse(String in) {
         return parser.parse(in);
     }
 }

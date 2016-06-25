@@ -7,7 +7,8 @@ import com.intellectualsites.rectangular.parser.impl.StringParser;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 
 @CommandDeclaration(
-        command = "setmeta"
+        command = "setmeta",
+        usage = "setmeta <key> <value>"
 )
 public class SetMeta extends Command {
 

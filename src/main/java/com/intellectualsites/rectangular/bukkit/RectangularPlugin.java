@@ -63,6 +63,7 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
         getCommand("rectangular").setExecutor((commandSender, command, s, strings) -> commandSender instanceof ConsoleCommandSender
                 || commandManager.handle(BukkitUtil.getPlayer((Player) commandSender), strings).getCommandResult() == CommandHandlingOutput.SUCCESS);
         Rectangular.get().getEventManager().register(this);
+        getServer().getPluginManager().registerEvents((BukkitSelectionManager) this.selectionManager, this);
     }
 
     @Subscribe
@@ -239,6 +240,12 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
     @Override
     public RectangularLogger info(String str) {
         getLogger().info(str);
+        return this;
+    }
+
+    @Override
+    public RectangularLogger warning(String msg) {
+        getLogger().warning(msg);
         return this;
     }
 

@@ -13,8 +13,9 @@ public class MessageProvider {
         REQUIRES_PLAYER("This command can only be executed by a player"),
         ERROR_OCCURRED("Something went wrong when executing the command"),
         COMMAND_NOT_FOUND("There is no such command"),
+        ARGUMENT_ERROR("Argument '%key' didn't parse: %parserError"),
         CLOSETS_MATCH("Did you mean: /rectangular %match?"),
-        USAGE("Command Usage: %usage");
+        USAGE("Command Usage: /rectangular %usage");
 
         String defaultString;
 
@@ -64,6 +65,14 @@ public class MessageProvider {
 
         public void send(CommandCaller caller, String s, String r) {
             caller.message(toString().replace(s, r));
+        }
+
+        public void send(CommandCaller caller, String[] vars, String[] vals) {
+            String msg = toString();
+            for (int i = 0; i < vars.length; i++) {
+                msg = msg.replace(vars[i], vals[i]);
+            }
+            caller.message(msg);
         }
     }
 

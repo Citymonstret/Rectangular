@@ -4,4 +4,5 @@ public interface RectangularLogger {
 
     RectangularLogger info(String str);
 
+    RectangularLogger warning(String str);
 }

@@ -1,5 +1,6 @@
 package com.intellectualsites.rectangular.bukkit;
 
+import com.google.common.collect.ImmutableCollection;
 import com.intellectualsites.commands.Command;
 import com.intellectualsites.commands.CommandManager;
 import com.intellectualsites.rectangular.Rectangular;
@@ -15,7 +16,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -168,7 +168,11 @@ public class BukkitPlayer implements RectangularPlayer {
     }
 
     @Override
-    public void sendRequiredArgumentsList(CommandManager manager, Command cmd, Collection<Parserable> required, String usage) {
-
+    public void sendRequiredArgumentsList(CommandManager manager, Command cmd, ImmutableCollection<Parserable> required, String usage) {
+        sendMessage("&cYou are missing the following arguments (in order)");
+        for (Parserable parserable : required) {
+            sendMessage("&e &6" + parserable.getName() + " &e| &6" + parserable.getParser().getName() + "&e, Example: &6" + parserable.getParser().getExample());
+            sendMessage("&e &6 " + parserable.getDesc());
+        }
     }
 }

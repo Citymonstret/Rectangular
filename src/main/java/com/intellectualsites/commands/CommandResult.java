@@ -2,6 +2,8 @@ package com.intellectualsites.commands;
 
 import com.intellectualsites.commands.callers.CommandCaller;
 import com.intellectualsites.commands.util.StringComparison;
+import lombok.Getter;
+import lombok.Setter;
 
 public class CommandResult {
 
@@ -11,14 +13,20 @@ public class CommandResult {
     private Command closestMatch;
     private Throwable throwable;
     private final int commandResult;
+
+    @Getter
     private String input;
 
-    protected CommandResult(String input, CommandManager commandManager, Command command, CommandCaller caller, int commandResult, Throwable throwable) {
+    @Getter
+    private CommandArgumentError commandArgumentError;
+
+    protected CommandResult(String input, CommandManager commandManager, Command command, CommandCaller caller, int commandResult, Throwable throwable, CommandArgumentError error) {
         this.command = command;
         this.caller = caller;
         this.manager = commandManager;
         this.commandResult = commandResult;
         this.input = input;
+        this.commandArgumentError = error;
 
         if (commandManager.getManagerOptions().getFindCloseMatches()) {
             if (commandResult == CommandHandlingOutput.NOT_FOUND) {
@@ -30,6 +38,10 @@ public class CommandResult {
             if (command != null) {
                 closestMatch = command;
             }
+        }
+
+        if (throwable != null) {
+            this.throwable = throwable;
         }
 
         if (throwable != null && manager.getManagerOptions().getPrintStacktrace()) {
@@ -61,10 +73,6 @@ public class CommandResult {
         return this.closestMatch;
     }
 
-    public String getInput() {
-        return input;
-    }
-
     protected static class CommandResultBuilder {
 
         private int commandResult = CommandHandlingOutput.OUTPUT_BUILD_FAILURE;
@@ -73,6 +81,8 @@ public class CommandResult {
         private Command command = null;
         private String input = "";
         private Throwable throwable = null;
+        @Setter
+        private CommandArgumentError commandArgumentError = null;
 
         protected CommandResultBuilder(){}
 
@@ -101,7 +111,7 @@ public class CommandResult {
         }
 
         public CommandResult build() {
-            return new CommandResult(input, manager, command, caller, commandResult, throwable);
+            return new CommandResult(input, manager, command, caller, commandResult, throwable, commandArgumentError);
         }
     }
 }

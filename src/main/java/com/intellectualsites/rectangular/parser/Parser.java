@@ -15,7 +15,7 @@ public abstract class Parser<T> {
         this.example = example;
     }
 
-    public abstract T parse(String in);
+    public abstract ParserResult<T> parse(String in);
 
     @Override
     public final String toString() {

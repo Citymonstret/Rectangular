@@ -6,6 +6,7 @@ import org.bukkit.DyeColor;
 import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.material.Wool;
 
 class ArmorStandManager implements com.intellectualsites.rectangular.bukkit.ArmorStandManager {
@@ -18,13 +19,15 @@ class ArmorStandManager implements com.intellectualsites.rectangular.bukkit.Armo
         armorStand.setInvisible(true);
         armorStand.setSmall(true);
         armorStand.setNoGravity(true);
-        armorStand.aQ = 45f;
+        armorStand.setHeadPose(new Vector3f(45f, 45f, 45f));
         armorStand.setSilent(true);
         armorStand.setInvulnerable(true);
         Packet packet = new PacketPlayOutSpawnEntityLiving(armorStand);
         ((CraftPlayer) player.getPlayer()).getHandle().playerConnection.sendPacket(packet);
         Wool wool = new Wool(color);
-        packet = new PacketPlayOutEntityEquipment(armorStand.getId(), EnumItemSlot.HEAD, CraftItemStack.asNMSCopy(wool.toItemStack()));
+        org.bukkit.inventory.ItemStack itemStack = wool.toItemStack();
+        itemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+        packet = new PacketPlayOutEntityEquipment(armorStand.getId(), EnumItemSlot.HEAD, CraftItemStack.asNMSCopy(itemStack));
         ((CraftPlayer) player.getPlayer()).getHandle().playerConnection.sendPacket(packet);
         return armorStand.getId();
     }

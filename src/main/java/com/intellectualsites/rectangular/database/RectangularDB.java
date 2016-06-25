@@ -1,5 +1,6 @@
 package com.intellectualsites.rectangular.database;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.core.Rectangle;
@@ -34,7 +35,7 @@ public abstract class RectangularDB {
     }
 
     public String getRegionMetaTableName() {
-        return prefix + "region_meta";
+        return prefix + "meta";
     }
 
     public String getPlayerMetaTableName() {
@@ -95,9 +96,8 @@ public abstract class RectangularDB {
                         .withAttribute().integer("meta_id").withAdditionalModifiers("AUTO_INCREMENT")
                         .notNull().and()
                         .withAttribute().integer("region_region_id").and()
-                        .withAttribute().string("owner").notNull().withDefaultValue("__SERVER__")
-                        .withMaxLength(48).and()
-                        .withAttribute().text("data").notNull().and()
+                        .withAttribute().string("mkey").notNull().withMaxLength(32).and()
+                        .withAttribute().string("value").notNull().withMaxLength(255).and()
                         .primaryKey("pk_" + getRegionMetaTableName()).using("meta_id").and()
                         .foreignKey("fk_" + getRegionMetaTableName()).on("region_region_id")
                         .references(getMainTableName(), "region_id").and()
@@ -144,9 +144,20 @@ public abstract class RectangularDB {
     private final ObjectMapper<Region> regionMapper = resultSet ->
             new SimpleRegion(resultSet.getInt("region_id"), 1, resultSet.getString("container_id"));
 
-    private final ObjectMapper<RegionData> regionDataMapper = resultSet ->
-            new RegionData(resultSet.getInt("region_region_id"),
-                    resultSet.getString("owner"), resultSet.getString("data"));
+    private final ObjectMapper<RegionData> regionDataMapper = resultSet -> {
+        ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
+        boolean cont = true;
+
+        int regionID = -1;
+
+        while (cont) {
+            regionID = resultSet.getInt("region_region_id");
+            builder.put(resultSet.getString("mkey"), resultSet.getString("value"));
+            cont = resultSet.next();
+        }
+        Map<String, String> map = builder.build();
+        return new RegionData(regionID, map.get("owner"), map);
+    };
 
     private final ObjectMapper<PlayerMeta> playerMetaMapper = resultSet -> {
 
@@ -160,6 +171,30 @@ public abstract class RectangularDB {
 
         return new PlayerMeta(map);
     };
+
+    public Region createRegionAndFetch(String uuid, String container_id) {
+        String randomUUID = UUID.randomUUID().toString().substring(0, 32); // Used to fetch the created region
+        InsertQuery query = getPolyJDBC().query().insert().into(getMainTableName())
+                .value("container_id", randomUUID);
+        getPolyJDBC().simpleQueryRunner().insert(query);
+        // Fetch the ID
+        SelectQuery getID = getPolyJDBC().query().select("region_id").from(getMainTableName())
+                .where("container_id = :cid").withArgument("cid", randomUUID);
+        int[] idC = new int[] {0};
+        getPolyJDBC().simpleQueryRunner().queryUnique(getID, set -> idC[0] = set.getInt("region_id"));
+        final int regionID = idC[0];
+        // Now we have to set the proper container id
+        UpdateQuery updateQuery = getPolyJDBC().query().update(getMainTableName()).set("container_id", container_id)
+                .where("region_id = :rid").withArgument("rid", regionID);
+        getPolyJDBC().simpleQueryRunner().update(updateQuery);
+        // Create region meta
+        InsertQuery createMeta = getPolyJDBC().query().insert().into(getRegionMetaTableName())
+                .value("region_region_id", regionID).value("mkey", "owner").value("value", uuid);
+        getPolyJDBC().simpleQueryRunner().insert(createMeta);
+        Region region = new SimpleRegion(regionID, 0, randomUUID);
+        region.setData(loadRegionData(regionID));
+        return region;
+    }
 
     public PlayerMeta loadPlayerMeta(UUID uuid) {
         return this.loadPlayerMeta(uuid.toString());
@@ -180,7 +215,11 @@ public abstract class RectangularDB {
     public  void removePlayerMeta(String uuid, String key) {
         DeleteQuery query = getPolyJDBC().query().delete().from(getPlayerMetaTableName())
                 .where("uuid = :uniqueId AND mkey = :ukey").withArgument("uniqueId", uuid).withArgument("ukey", key);
-        getPolyJDBC().queryRunner().delete(query);
+        try {
+            getPolyJDBC().queryRunner().delete(query);
+        } finally {
+            getPolyJDBC().queryRunner().close();
+        }
     }
 
     public PlayerMeta loadPlayerMeta(String uuid) {
@@ -197,9 +236,10 @@ public abstract class RectangularDB {
         return m.associate(uuid);
     }
 
-    public ImmutableSet<RegionData> loadRegionData() {
-        SelectQuery query = getPolyJDBC().query().selectAll().from(getRegionMetaTableName());
-        return ImmutableSet.copyOf(getPolyJDBC().simpleQueryRunner().querySet(query, regionDataMapper));
+    public RegionData loadRegionData(int regionID) {
+        SelectQuery query = getPolyJDBC().query().selectAll().from(getRegionMetaTableName())
+                .where("region_region_id = :rid").withArgument("rid", regionID);
+        return getPolyJDBC().simpleQueryRunner().queryUnique(query, regionDataMapper);
     }
 
     public ImmutableSet<Region> loadRegions() {

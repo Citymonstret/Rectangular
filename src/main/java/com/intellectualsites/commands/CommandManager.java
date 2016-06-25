@@ -1,11 +1,14 @@
 package com.intellectualsites.commands;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.intellectualsites.commands.callers.CommandCaller;
 import com.intellectualsites.commands.options.ManagerOptions;
 import com.intellectualsites.commands.permission.AdvancedPermission;
 import com.intellectualsites.commands.permission.SimplePermission;
 import com.intellectualsites.commands.util.StringUtil;
 import com.intellectualsites.rectangular.parser.InstantArray;
+import com.intellectualsites.rectangular.parser.ParserResult;
 import com.intellectualsites.rectangular.parser.Parserable;
 
 import java.util.*;
@@ -93,8 +96,8 @@ public class CommandManager {
         return false;
     }
 
-    final public Collection<Command> getCommands() {
-        return this.commands.values();
+    final public List<Command> getCommands() {
+        return new ArrayList<>(this.commands.values());
     }
 
     final public CommandResult handle(CommandCaller caller, String input) {
@@ -206,7 +209,15 @@ public class CommandManager {
                             }
                             value = cache.toString();
                         } else {
-                            value = parserable.parse(args[index++]);
+                            // value = parserable.parse(args[index++]);
+                            ParserResult parserResult = parserable.parse(args[index++]);
+                            if (parserResult.isParsed()) {
+                                value = parserResult.getResult();
+                            } else {
+                                commandResultBuilder.setCommandResult(CommandHandlingOutput.ARGUMENT_ERROR);
+                                commandResultBuilder.setCommandArgumentError(new CommandArgumentError(parserResult, parserable));
+                                break scope;
+                            }
                         }
                         if (value == null) {
                             success = false;
@@ -217,7 +228,12 @@ public class CommandManager {
                     }
                 }
                 if (!success) {
-                    caller.sendRequiredArgumentsList(this, cmd, requiredArguments.values(), cmd.getUsage());
+                    ImmutableCollection.Builder<Parserable> builder = new ImmutableList.Builder<>();
+                    for (int orderIndex = Integer.MAX_VALUE; orderIndex > Integer.MAX_VALUE - order.size(); orderIndex--) {
+                        String name = order.get(orderIndex);
+                        builder.add(requiredArguments.get(name));
+                    }
+                    caller.sendRequiredArgumentsList(this, cmd, builder.build(), cmd.getUsage());
                     commandResultBuilder.setCommandResult(CommandHandlingOutput.WRONG_USAGE);
                     break scope;
                 }
@@ -239,7 +255,6 @@ public class CommandManager {
             }
             commandResultBuilder.setCommandResult(CommandHandlingOutput.SUCCESS);
         }
-
         return commandResultBuilder.build();
     }
 

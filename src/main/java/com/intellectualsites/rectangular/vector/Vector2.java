@@ -57,8 +57,8 @@ public class Vector2 {
         return obj != null && obj instanceof Vector2 && equals((Vector2) obj);
     }
 
-    public boolean equals(@NonNull final Vector2 v2) {
-        return v2.x == x && v2.y == y;
+    public boolean equals(final Vector2 v2) {
+        return v2 != null && v2.x == x && v2.y == y;
     }
 
     public void set(@NonNull final Vector2 v2) {
@@ -102,13 +102,13 @@ public class Vector2 {
         return this;
     }
 
-    public int distanceSquared(@NonNull final Vector2 v2) {
-        int dx = v2.x - x;
-        int dy = v2.y - y;
+    public double distanceSquared(@NonNull final Vector2 v2) {
+        int dx = x - v2.x;
+        int dy = y - v2.y;
         return (dx * dx) + (dy * dy);
     }
 
-    public int distance(@NonNull final Vector2 v2) {
+    public double distance(@NonNull final Vector2 v2) {
         return (int) Math.sqrt(distanceSquared(v2));
     }
 
