@@ -46,4 +46,8 @@ public interface Region {
     void setData(com.intellectualsites.rectangular.data.RegionData data);
 
     boolean isCompiled();
+
+    boolean overlaps(Rectangle r2);
+
+    boolean isExpandableTo(Rectangle r2);
 }

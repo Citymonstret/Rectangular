@@ -7,6 +7,7 @@ import com.intellectualsites.rectangular.item.Item;
 
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 public interface RectangularPlayer extends CommandCaller<RectangularPlayer> {
 
     UUID getUniqueId();

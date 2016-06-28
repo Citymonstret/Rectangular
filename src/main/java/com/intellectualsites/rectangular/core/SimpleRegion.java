@@ -135,6 +135,7 @@ public class SimpleRegion extends RegionContainer implements Region {
         }
 
         this.compiled = true;
+        this.compileCorners();
     }
 
     @Override
@@ -168,9 +169,6 @@ public class SimpleRegion extends RegionContainer implements Region {
 
     @Override
     public ImmutableList<Vector2> getCorners() {
-        if (corners == null) {
-            compileCorners();
-        }
         return corners;
     }
 
@@ -208,6 +206,29 @@ public class SimpleRegion extends RegionContainer implements Region {
     @Override
     public boolean isCompiled() {
         return this.compiled;
+    }
+
+    @Override
+    public boolean overlaps(@NonNull final Rectangle r2) {
+        for (Rectangle rectangle : rectangles) {
+            if (rectangle.overlaps(r2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isExpandableTo(@NonNull final Rectangle r2) {
+        for (Rectangle rectangle : rectangles) {
+            if (rectangle.getMax().getY() == r2.getMin().getY() ||
+                    rectangle.getMax().getX() == r2.getMin().getX() ||
+                    rectangle.getMin().getY() == r2.getMax().getY() ||
+                    rectangle.getMin().getX() == r2.getMax().getX()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

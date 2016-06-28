@@ -5,6 +5,7 @@ import com.intellectualsites.commands.CommandDeclaration;
 import com.intellectualsites.commands.CommandInstance;
 import com.intellectualsites.rectangular.Rectangular;
 import com.intellectualsites.rectangular.api.objects.Region;
+import com.intellectualsites.rectangular.config.Message;
 import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.misc.RectangularRunnable;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
@@ -22,26 +23,28 @@ public class Create extends Command {
     public boolean onCommand(CommandInstance instance) {
         RectangularPlayer player = (RectangularPlayer) instance.getCaller();
         if (player.isInRegion()) {
-            player.sendMessage("You're already in a region. Use /region expand!");
+            Message.ERROR_IN_REGION.send(player);
+            Message.TIP_USE_EXPAND.send(player);
         } else {
-            if (Rectangular.get().getServiceManager().getSelectionManager().isFinished(player)) {
-                final Rectangle initialRectangle = Rectangular.get().getServiceManager()
-                        .getSelectionManager().getSelection(player);
+            if (Rectangular.getServiceManager().getSelectionManager().isFinished(player)) {
+                final Rectangle initialRectangle = new Rectangle();
+                initialRectangle.copyFrom(Rectangular.getServiceManager()
+                        .getSelectionManager().getSelection(player));
                 final String containerId = "w:" + player.getWorld(); // TODO: Fix this
                 final String uuid = player.getUniqueId().toString();
-                Collection<Region> overlapping = Rectangular.get().getRegionManager().overlaps(player.getWorld(), initialRectangle);
+                Collection<Region> overlapping = Rectangular.getRegionManager().overlaps(player.getWorld(), initialRectangle);
                 if (!overlapping.isEmpty()) {
-                    player.sendMessage("&c&lCannot create region: &6The bounds are overlapping with region(s): &e{0}",
-                            StringUtils.join(overlapping, ","));
+                    Message.ERROR_BOUNDS_OVERLAPPING.send(player, StringUtils.join(overlapping, ","));
                     return true;
                 }
                 ((RectangularRunnable) () -> {
-                    Region r = Rectangular.get().getDatabase().createRegion(uuid, containerId, initialRectangle);
-                    player.sendMessage("Created region with id: " + r.getId());
-                    player.sendMessage("Trying to add it to the region manager");
+                    Region r = Rectangular.getDatabase().createRegion(uuid, containerId, initialRectangle);
+                    Message.INFO_CREATED_REGION.send(player, r.getId());
+                    Message.INFO_ADDING_TO_MANAGER.send(player, r.getId());
                     try {
-                        Rectangular.get().getRegionManager().addRegionUnsafe(r);
+                        Rectangular.getRegionManager().addRegionUnsafe(r);
                     } catch (Exception e) {
+                        // Non-Standard message
                         player.sendMessage("Something went wrong when adding the region: " + e.getMessage() + " | " + r.getOwningContainer());
                         if (instance.getArguments().length > 0) {
                             if (instance.getArguments()[0].equalsIgnoreCase("verbose")) {
@@ -49,10 +52,14 @@ public class Create extends Command {
                             }
                         }
                     }
-                    player.sendMessage("Success!");
+                    Message.INFO_SUCCESS.send(player);
                 }).runAsync();
+            } else {
+                Message.ERROR_MISSING_SELECTION.send(player);
+                Message.TIP_USE_WAND.send(player);
             }
         }
         return true;
     }
+
 }

@@ -32,7 +32,7 @@ public class BukkitUtil {
     public static void removePlayer(@NonNull final UUID uuid) {
         playerRegistry.remove(uuid.toString());
         // Just in case the player disconnected before it was fetched
-        Rectangular.get().getServiceManager().getPlayerManager().unloadMeta(uuid);
+        Rectangular.getServiceManager().getPlayerManager().unloadMeta(uuid);
     }
 
     public static Vector2 locationToVector(@NonNull final Location location) {

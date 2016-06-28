@@ -7,7 +7,6 @@ import com.intellectualsites.rectangular.command.impl.*;
 import com.intellectualsites.rectangular.database.RectangularDB;
 import com.intellectualsites.rectangular.database.RectangularDBMySQL;
 import com.intellectualsites.rectangular.manager.*;
-import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,6 +18,34 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 public final class Rectangular {
+
+    public static Command getCommandManager() {
+        return get().commandManager;
+    }
+
+    public static EventManager getEventManager() {
+        return get().eventManager;
+    }
+
+    public static ServiceManager getServiceManager() {
+        return get().serviceManager;
+    }
+
+    public static WorldManager getWorldManager() {
+        return get().worldManager;
+    }
+
+    public static MessageManager getMessageManager() {
+        return get().messageManager;
+    }
+
+    public static RectangularDB getDatabase() {
+        return get().database;
+    }
+
+    public static RegionManager getRegionManager() {
+        return get().regionManager;
+    }
 
     private static Rectangular rectangular;
 
@@ -33,42 +60,41 @@ public final class Rectangular {
         return rectangular;
     }
 
-    @Getter
     private Command commandManager = new RectangularCommandManager();
-
-    @Getter
     private EventManager eventManager = new EventManager();
-
-    @Getter
     private ServiceManager serviceManager;
-
-    @Getter
     private RegionManager regionManager;
-
-    @Getter
     private WorldManager worldManager;
-
-    @Getter
+    private MessageManager messageManager;
     private RectangularDB database;
 
     private Rectangular(final ServiceManager provider) {
+        this.serviceManager = provider;
+
         // This will be used later
         // TODO Use this shit
         ImmutableSet<String> ignoredCommands = ImmutableSet.of();
         commandManager.setIgnoreList(ignoredCommands);
         // Add all commands, the ignored ones will not be added
         commandManager.createCommand(new Info());
-        commandManager.createCommand(new Test());
         commandManager.createCommand(new SetMeta());
         commandManager.createCommand(new Wand());
         commandManager.createCommand(new Create());
+        commandManager.createCommand(new Expand());
         commandManager.addCommand(new Help());
 
         // Setup the service manager
         Consumer<String> logger = s -> provider.logger().info(s);
-        this.serviceManager = provider;
         provider.logger().info("Rectangular initializing, using service manager: " + provider.getClass().getName());
         //
+
+        try {
+            this.messageManager = MessageManager.create(provider.getFolder(), logger, "messages");
+        } catch (Exception e) {
+            e.printStackTrace();
+            provider.shutdown("Failed to create the MessageManager");
+            return;
+        }
 
         logger.accept("Loading configuration, from: " + provider.getFolder() + File.separator + "core.yml");
         YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new File(provider.getFolder(), "core.yml"));

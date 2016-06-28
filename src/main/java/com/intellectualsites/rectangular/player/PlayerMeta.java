@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressWarnings("ALL")
 public class PlayerMeta {
 
     @Getter(AccessLevel.PRIVATE)
@@ -58,11 +59,11 @@ public class PlayerMeta {
     public void setMeta(String key, byte[] value) {
         final boolean delete = hasMeta(key);
         map.put(key, value);
-        Rectangular.get().getServiceManager().runAsync(() -> {
+        Rectangular.getServiceManager().runAsync(() -> {
             if (delete) {
-                Rectangular.get().getDatabase().updatePlayerMeta(uuid, key, value);
+                Rectangular.getDatabase().updatePlayerMeta(uuid, key, value);
             } else {
-                Rectangular.get().getDatabase().addPlayerMeta(uuid, key, value);
+                Rectangular.getDatabase().addPlayerMeta(uuid, key, value);
             }
         });
     }
@@ -86,8 +87,8 @@ public class PlayerMeta {
     public void removeMeta(String key) {
         if (hasMeta(key)) {
             map.remove(key);
-            Rectangular.get().getServiceManager().runAsync(()
-                    -> Rectangular.get().getDatabase().removePlayerMeta(uuid, key));
+            Rectangular.getServiceManager().runAsync(()
+                    -> Rectangular.getDatabase().removePlayerMeta(uuid, key));
         }
     }
 
@@ -97,36 +98,25 @@ public class PlayerMeta {
     }
 
     public static final class Parsers {
-
         public static final StringParser stringParser = new StringParser();
-
         public static final BooleanParser booleanParser = new BooleanParser();
-
         public static final IntegerParser integerParser = new IntegerParser();
-
     }
 
     private static class StringParser implements MetaParser<String> {
-
-        @Override
-        public byte[] toBytes(String in) {
+        @Override public byte[] toBytes(String in) {
             return in.getBytes();
         }
-
-        @Override
-        public String fromBytes(byte[] in) {
+        @Override public String fromBytes(byte[] in) {
             if (in.length == 0) {
                 return "";
             }
             return new String(in);
         }
-
     }
 
     private static class IntegerParser implements MetaParser<Integer> {
-
-        @Override
-        public byte[] toBytes(Integer in) {
+        @Override public byte[] toBytes(Integer in) {
             byte[] bytes = new byte[4];
             bytes[0] = (byte) (in >> 24);
             bytes[1] = (byte) (in >> 16);
@@ -134,9 +124,7 @@ public class PlayerMeta {
             bytes[3] = in.byteValue();
             return bytes;
         }
-
-        @Override
-        public Integer fromBytes(byte[] in) {
+        @Override public Integer fromBytes(byte[] in) {
             if (in.length > 3) {
                 return (in[0]<<24)&0xff000000
                         |(in[1]<<16)&0x00ff0000
@@ -145,25 +133,19 @@ public class PlayerMeta {
             }
             return null;
         }
-
     }
 
     private static class BooleanParser implements MetaParser<Boolean> {
-
-        @Override
-        public byte[] toBytes(Boolean in) {
+        @Override public byte[] toBytes(Boolean in) {
             return new byte[] {
                     (byte) (in ? 1 : 0)
             };
         }
-
-        @Override
-        public Boolean fromBytes(byte[] in) {
+        @Override public Boolean fromBytes(byte[] in) {
             if (in.length > 0) {
                 return in[0] == 1;
             }
             return null;
         }
-
     }
 }

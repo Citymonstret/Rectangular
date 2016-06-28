@@ -60,6 +60,11 @@ public class Rectangle {
         this.max.set(boundingBox.getMax());
     }
 
+    public void shrink(int i) {
+        this.min.add(i, i);
+        this.max.subtract(i, i);
+    }
+
     public Area toArea(@NonNull final Vector2 min) {
         return new Area(new java.awt.Rectangle(getMin().getX() - min.getX(),
                 getMin().getY() - min.getY(), getMax().getX() - getMin().getX(),
@@ -68,6 +73,6 @@ public class Rectangle {
 
     @Override
     public String toString() {
-        return "Rectangle:{Min:{" + getMin().toString() + "},Max:{" + getMax().toString() + "}}";
+        return "Rectangle:[Min:[" + getMin().toString() + "],Max:[" + getMax().toString() + "]]";
     }
 }

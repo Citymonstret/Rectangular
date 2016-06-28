@@ -22,7 +22,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BukkitSelectionManager implements SelectionManager, Listener {
+@SuppressWarnings("unused")
+class BukkitSelectionManager implements SelectionManager, Listener {
 
     private Map<Integer, TemporarySelection> selectionMap = new HashMap<>();
 
@@ -30,7 +31,7 @@ public class BukkitSelectionManager implements SelectionManager, Listener {
 
     private ItemStack stack;
 
-    public ItemStack getSelectionTool() {
+    private ItemStack getSelectionTool() {
         if (stack == null) {
             stack = new ItemStack(Material.POTATO_ITEM);
             ItemMeta meta = stack.getItemMeta();
@@ -42,7 +43,7 @@ public class BukkitSelectionManager implements SelectionManager, Listener {
         return stack;
     }
 
-    public boolean isSelectionTool(@NonNull final ItemStack ostack) {
+    private boolean isSelectionTool(@NonNull final ItemStack ostack) {
         return ostack.isSimilar(getSelectionTool());
     }
 
@@ -54,7 +55,7 @@ public class BukkitSelectionManager implements SelectionManager, Listener {
     @Override
     public Rectangle getSelection(RectangularPlayer player) {
         TemporarySelection temp = selectionMap.get(player.getId());
-        return new Rectangle(temp.getMin(), temp.getMax());
+        return new Rectangle(temp.getV1(), temp.getV2());
     }
 
     @EventHandler
@@ -68,16 +69,11 @@ public class BukkitSelectionManager implements SelectionManager, Listener {
                 } else {
                     Location l = event.getPlayer().getLocation().clone();
                     l.subtract(10000, 0, 10000);
-                    selection = new TemporarySelection(BukkitUtil.locationToVector(l));
+                    selection = new TemporarySelection();
                     selectionMap.put(rectangularPlayer.getId(), selection);
                 }
                 Vector2 vector2 = BukkitUtil.locationToVector(event.getClickedBlock().getLocation());
-                int status = selection.add(vector2, rectangularPlayer);
-                if (status == 0) {
-                    return;
-                }
-                /* rectangularPlayer.sendMessage("&cSet &6" + (status == -1 ? "min" : "max")
-                        + " &cto &6" + vector2.getX() + "&c,&6" + vector2.getY()); */
+                selection.add(vector2, rectangularPlayer);
             }
         }
     }
@@ -105,73 +101,36 @@ public class BukkitSelectionManager implements SelectionManager, Listener {
 
         @Getter
         @Setter
-        private Vector2 min, max, origin;
+        private Vector2 v1, v2;
 
-        public TemporarySelection(Vector2 origin) {
-            this.origin = origin;
-        }
-
-        public int add(Vector2 v2, RectangularPlayer player) {
-            if (v2.equals(max) || v2.equals(min)) {
+        public int add(Vector2 v3, RectangularPlayer player) {
+            if (v3.equals(v1) || v3.equals(v2)) {
                 return 0;
             }
 
-            int status;
-
-            Vector2 smallest = origin.clone();
-
-            double diff = smallest.distanceSquared(v2);
-            double minDiff;
-
-            if (min != null ) {
-                minDiff = smallest.distanceSquared(min);
-            } else {
-                minDiff = -999999999;
+            if (v1 == null) {
+                v1 = v3;
+            } else if (v2 == null) {
+                v2 = v3;
             }
 
-            if (diff > minDiff) {
-                status = 1;
-            } else {
-                status = -1;
+            if (isComplete()) {
+                int x1 = v1.getX();
+                int x2 = v2.getX();
+                int y1 = v1.getY();
+                int y2 = v2.getY();
+                v1.set(Math.min(x1, x2), Math.min(y1, y2));
+                v2.set(Math.max(x1, x2), Math.max(y1, y2));
             }
 
-            if (status == -1) {
-                if (min != null) {
-                    max = min;
-                    player.sendMessage("&cSet max to: &6" + max);
-                }
-                min = v2;
-                player.sendMessage("&cSet min to: &6" + min);
-            } else {
-                if (max != null) {
-                    min = max;
-                    player.sendMessage("&cSet min to: &6" + min);
-                }
-                max = v2;
-                player.sendMessage("&cSet max to: &6" + max);
-            }
+            player.sendMessage("&cSet min to: &6" + v1);
+            player.sendMessage("&cSet max to: &6" + v2);
 
-            if (max != null && min != null) {
-                player.sendMessage("&6\n&c&lRecalculating!");
-                recalc(player);
-            }
-
-            return status;
+            return 0;
         }
 
-        private void recalc(RectangularPlayer player) {
-            int x1 = min.getX();
-            int x2 = max.getX();
-            int y1 = min.getY();
-            int y2 = max.getY();
-            min.set(Math.min(x1, x2), Math.min(y1, y2));
-            max.set(Math.max(x1, x2), Math.max(y1, y2));
-            player.sendMessage("&cSet min to: &6" + min);
-            player.sendMessage("&cSet max to: &6" + max);
-        }
-
-        public boolean isComplete() {
-            return min != null && max != null;
+        boolean isComplete() {
+            return v1 != null && v2 != null;
         }
     }
 }

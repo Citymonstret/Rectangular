@@ -8,9 +8,9 @@ public abstract class Parser<T> {
     private String name;
 
     @Getter
-    private final T example;
+    private final Object example;
 
-    public Parser(String name, T example) {
+    public Parser(String name, Object example) {
         this.name = name;
         this.example = example;
     }

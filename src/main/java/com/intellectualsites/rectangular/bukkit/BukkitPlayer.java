@@ -15,6 +15,8 @@ import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
+import org.bukkit.util.NumberConversions;
+import org.bukkit.util.Vector;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -25,42 +27,35 @@ public class BukkitPlayer implements RectangularPlayer {
 
     private static int idPool = Integer.MIN_VALUE;
 
-    @Getter
-    private final int id;
-
-    @Getter
-    private final Player player;
-
-    @Getter
-    private final PlayerEventObserver eventObserver;
+    @Getter private final int id;
+    @Getter private final Player player;
+    @Getter private final PlayerEventObserver eventObserver;
 
     private PlayerMeta meta;
-
     private Region topLevelRegion;
-
     private boolean regionFetched = false;
 
-    public BukkitPlayer(Player player) {
+    BukkitPlayer(Player player) {
         this.id = idPool++;
         this.player = player;
         this.eventObserver = new PlayerEventObserver(this);
         // Make sure that it's loaded properly
-        PlayerMeta temp = Rectangular.get().getServiceManager()
+        PlayerMeta temp = Rectangular.getServiceManager()
                 .getPlayerManager().unloadMeta(player.getUniqueId());
         if (temp == null) {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    PlayerMeta temp = Rectangular.get().getServiceManager()
+                    PlayerMeta temp = Rectangular.getServiceManager()
                             .getPlayerManager().unloadMeta(player.getUniqueId());
                     if (temp == null) {
-                        Rectangular.get().getServiceManager().runSyncDelayed(this, 5L /* 1/4 of a second */);
+                        Rectangular.getServiceManager().runSyncDelayed(this, 5L /* 1/4 of a second */);
                     } else {
                         meta = temp;
                     }
                 }
             };
-            Rectangular.get().getServiceManager().runSync(runnable);
+            Rectangular.getServiceManager().runSync(runnable);
         } else {
             meta = temp;
         }
@@ -98,7 +93,7 @@ public class BukkitPlayer implements RectangularPlayer {
     @Override
     public void resetRegionCache() {
         Region old = topLevelRegion;
-        topLevelRegion = Rectangular.get().getRegionManager().
+        topLevelRegion = Rectangular.getRegionManager().
                 getHighestLevelRegion(getWorld(),
                         BukkitUtil.locationToVector(player.getLocation()));
         if (topLevelRegion != null && topLevelRegion != old) {
@@ -113,11 +108,14 @@ public class BukkitPlayer implements RectangularPlayer {
 
     @Override
     public WorldContainer getWorldObject() {
-        return Rectangular.get().getWorldManager().getContainer(getWorld());
+        return Rectangular.getWorldManager().getContainer(getWorld());
     }
 
     @Override
     public void sendMessage(String msg, Object ... arguments) {
+        if (msg.equals("null")) {
+            return;
+        }
         String transformed = ChatColor.translateAlternateColorCodes('&', MessageFormat.format(msg, arguments));
         if (transformed.contains("\n")) {
             player.sendMessage(transformed.split("\n"));
@@ -159,8 +157,17 @@ public class BukkitPlayer implements RectangularPlayer {
         return meta;
     }
 
+    public static final int INDICATOR_MAX_CHUNKS = 5;
+    public static final double INDICATOR_MAX_DISTANCE = NumberConversions.square(
+            (double) /* Number of chunks */ INDICATOR_MAX_CHUNKS * 16
+    );
+
     @Override
     public void showIndicator(double x, double y, double z, String colour) {
+        // TODO: Make this configurable
+        if (player.getLocation().toVector().distanceSquared(new Vector(x, y, z)) > INDICATOR_MAX_DISTANCE) {
+            return;
+        }
         if (armorStandCache.containsKey( x + ";" + y + ";" + z)) {
             return; // Otherwise it will create buggy duplicates :/
         }

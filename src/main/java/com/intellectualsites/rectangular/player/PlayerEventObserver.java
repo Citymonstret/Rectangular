@@ -14,11 +14,11 @@ public class PlayerEventObserver {
     private final RectangularPlayer player;
 
     public void onPlayerLeaveRegion(Region left) {
-        Rectangular.get().getEventManager().push(new PlayerLeftRegionEvent(player, left));
+        Rectangular.getEventManager().push(new PlayerLeftRegionEvent(player, left));
     }
 
     public void onPlayerEnterRegion() {
-        Rectangular.get().getEventManager().push(new PlayerEnteredRegionEvent(player));
+        Rectangular.getEventManager().push(new PlayerEnteredRegionEvent(player));
     }
 
 }

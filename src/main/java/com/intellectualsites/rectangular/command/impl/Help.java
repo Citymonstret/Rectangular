@@ -5,10 +5,8 @@ import com.intellectualsites.commands.CommandInstance;
 import com.intellectualsites.commands.pagination.PaginatedCommand;
 import com.intellectualsites.commands.pagination.PaginationFactory;
 import com.intellectualsites.rectangular.command.RectangularCommandManager;
+import com.intellectualsites.rectangular.config.Message;
 import com.intellectualsites.rectangular.parser.impl.IntegerParser;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Help extends PaginatedCommand<Command> {
 
@@ -21,23 +19,18 @@ public class Help extends PaginatedCommand<Command> {
 
     @Override
     public boolean handleTooBigPage(CommandInstance instance, int specifiedPage, int maxPages) {
-        instance.getCaller().message(String.format("&6%d &cis too big, max: &6%d", specifiedPage, maxPages));
+        Message.ERROR_PARSER_TOO_BIG.send(instance.getCaller(), specifiedPage, maxPages);
         return true;
     }
 
     @Override
     public boolean onCommand(PaginatedCommandInstance<Command> instance) {
         PaginationFactory<Command> factory = getPaginationFactory();
-
-        List<String> list = new ArrayList<>();
-        list.add("&c&l// &6Page: &e" + (instance.getPage().getPageNum() + 1) + "&c/&e" + factory.getPages().size());
-
+        Message.HELP_HEADER.send(instance.getCaller(), instance.getPage().getPageNum() + 1, factory.getPages().size());
         for (Command command : instance.getPage().getItems()) {
-            list.add(String.format("&c&l/ &e/rect %s &c| &6Desc: &e%s", command.getUsage(), command.getDescription()));
+            Message.HELP_ENTRY.send(instance.getCaller(), command.getUsage(), command.getDescription());
         }
-
-        list.forEach(instance.getCaller()::message);
-
+        Message.HELP_FOOTER.send(instance.getCaller());
         return true;
     }
 

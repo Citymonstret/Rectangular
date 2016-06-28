@@ -27,6 +27,9 @@ import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -36,7 +39,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RectangularPlugin extends JavaPlugin implements ServiceManager, RectangularLogger, RectangularListener, PlayerManager {
+public class RectangularPlugin extends JavaPlugin implements ServiceManager, RectangularLogger, RectangularListener, PlayerManager, Listener {
 
     private SelectionManager selectionManager;
 
@@ -54,15 +57,16 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
         }
         this.selectionManager = new BukkitSelectionManager();
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        this.getServer().getPluginManager().registerEvents(this, this);
         try {
             Rectangular.setup(this);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        final Command commandManager = Rectangular.get().getCommandManager();
+        final Command commandManager = Rectangular.getCommandManager();
         getCommand("rectangular").setExecutor((commandSender, command, s, strings) -> commandSender instanceof ConsoleCommandSender
                 || commandManager.handle(BukkitUtil.getPlayer((Player) commandSender), strings).getCommandResult() == CommandHandlingOutput.SUCCESS);
-        Rectangular.get().getEventManager().register(this);
+        Rectangular.getEventManager().register(this);
         getServer().getPluginManager().registerEvents((BukkitSelectionManager) this.selectionManager, this);
     }
 
@@ -79,114 +83,96 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
     @Subscribe
     public void onRegionManagerLoad(final RegionManagerDoneEvent event) {
         // start #temp1 ::= Temporary test code
-        this.getServer().getScheduler().runTaskTimer(this, () -> {
-            for (final Player player : Bukkit.getOnlinePlayers()) {
-                // Get the player wrapper
-                final BukkitPlayer bukkitPlayer = BukkitUtil.getPlayer(player);
 
-                // Check if a player is in a region
-                if (bukkitPlayer.isInRegion()) {
-
-                    // Get the region the player is in
-                    final Region r = bukkitPlayer.getRegion();
-
-                    // Check if the player meta data is loaded
-                    if (bukkitPlayer.getMeta() != null /* Is loaded */) {
-                        if (!bukkitPlayer.getMeta().hasMeta("indicators")) {
-                            continue;
-                        }
-
-                        //
-                        // This caches the Y value of the player, so
-                        // we don't have to send the indicators on each run
-                        //
-                        final int y = player.getLocation().getBlockY();
-                        if (bukkitPlayer.getMeta().hasMeta("indicatorY")) {
-                            int tempY = bukkitPlayer.getMeta().getInt("indicatorY");
-                            if (y != tempY) {
-                                bukkitPlayer.deleteIndicators();
-                                bukkitPlayer.getMeta().setMeta("indicatorY", y);
-                            } else {
-                                continue;
-                            }
-                        } else {
-                            bukkitPlayer.getMeta().setMeta("indicatorY", y);
-                        }
-
-                        /*
-                        Get the type of indicator:
-
-
-                        - corners: Only show the corners
-                        - corners_outline: Show the corners in different colours (depending on their location relative to the
-                                            reversed path), and the region outline in black
-                        - outline: Show the region outline in  black
-                        - rectangles: Outline the rectangles with random colours
-
-                         */
-                        final String type = bukkitPlayer.getMeta().getMeta("indicators", PlayerMeta.Parsers.stringParser);
-                        switch (type) {
-                            case "corners": {
-                                final ImmutableList<Vector2> corners = r.getCorners();
-                                for (int i = 0; i < corners.size(); i++) {
-                                    Location location = BukkitUtil.vectorToLocation(player.getWorld(), corners.get(i), player.getLocation().getY() + 0.5d);
-                                    location.add(0, -0.3d, 0);
-                                    bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
-                                            DyeColor.values()[i].name());
-                                }
-                            } break;
-                            case "corners_outline": {
-                                final ImmutableList<Vector2> corners = r.getCorners();
-                                for (int i = 0; i < corners.size(); i++) {
-                                    Location location = BukkitUtil.vectorToLocation(player.getWorld(), corners.get(i), player.getLocation().getY() + 0.5d);
-                                    location.add(0, -0.3d, 0);
-                                    bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
-                                            DyeColor.values()[i].name());
-                                }
-                                for (final Vector2 vector2 : r.getOutline(false)) {
-                                    Location location = BukkitUtil.vectorToLocation(player.getWorld(), vector2, player.getLocation().getY() + 0.5d);
-                                    location.add(0, -0.3d, 0);
-                                    bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
-                                            DyeColor.BLACK.name());
-                                }
-                            } break;
-                            case "outline": {
-                                for (Vector2 vector2 : r.getOutline(true)) {
-                                    Location location = BukkitUtil.vectorToLocation(player.getWorld(), vector2, player.getLocation().getY() + 0.5d);
-                                    location.add(0, -0.3d, 0);
-                                    bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
-                                            DyeColor.BLACK.name());
-                                }
-                            } break;
-                            case "rectangles": {
-                                for (Rectangle re : r.getRectangles()) {
-                                    for (Vector2 vector2 : re.getOutline()) {
-                                        Location location = BukkitUtil.vectorToLocation(player.getWorld(), vector2, player.getLocation().getY() + 0.5d);
-                                        location.add(0, 1.3d, 0);
-                                        bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
-                                                DyeColor.values()[(int)(Math.random() * DyeColor.values().length)].name());
-                                    }
-                                }
-                            } break;
-                            default: {
-                                player.sendMessage("Illegal \"indicators\" type: " + type);
-                                player.sendMessage("Deleting meta value");
-                                bukkitPlayer.getMeta().removeMeta("indicators");
-                            } break;
-                        }
-                    } else {
-                        // Whoos: The meta wasn't loaded
-                        bukkitPlayer.sendMessage("Your meta isn't loaded :/");
-                    }
-                } else {
-                    // The player isn't in a region anymore, reset the indicator Y cache
-                    // and remove all indicators
-                    bukkitPlayer.getMeta().removeMeta("indicatorY");
-                    bukkitPlayer.deleteIndicators();
-                }
-            }
-        }, 0L, 2L);
         // emd #temp1
+    }
+
+    @EventHandler
+    public void temp(PlayerMoveEvent event) {
+        int oldX = event.getFrom().getBlockX();
+        int oldZ = event.getFrom().getBlockZ();
+        int newX = event.getTo().getBlockX();
+        int newZ = event.getTo().getBlockZ();
+
+        if  (oldX == newX && oldZ == newZ) {
+            return;
+        }
+
+        BukkitPlayer bukkitPlayer = BukkitUtil.getPlayer(event.getPlayer());
+
+        if (bukkitPlayer.getMeta() == null || !bukkitPlayer.getMeta().hasMeta("indicators")) {
+            return;
+        }
+
+        Rectangle bonds = new Rectangle();
+        int change = BukkitPlayer.INDICATOR_MAX_CHUNKS * 16;
+        int maxX = newX + change;
+        int minX = newX - change;
+        int minZ = newZ - change;
+        int maxZ = newZ + change;
+        bonds.getMin().set(minX, minZ);
+        bonds.getMax().set(maxX, maxZ);
+
+        Player player = event.getPlayer();
+
+        bukkitPlayer.deleteIndicators();
+
+        for (Region r : Rectangular.getWorldManager().getRegionsInWorld(bukkitPlayer.getWorld())) {
+            if (!r.overlaps(bonds)) {
+                continue;
+            }
+
+            final String type = bukkitPlayer.getMeta().getMeta("indicators", PlayerMeta.Parsers.stringParser);
+            switch (type) {
+                case "corners": {
+                    final ImmutableList<Vector2> corners = r.getCorners();
+                    for (int i = 0; i < corners.size(); i++) {
+                        Location location = BukkitUtil.vectorToLocation(player.getWorld(), corners.get(i), player.getLocation().getY() + 0.5d);
+                        location.add(0, -0.3d, 0);
+                        bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
+                                DyeColor.values()[i].name());
+                    }
+                } break;
+                case "corners_outline": {
+                    final ImmutableList<Vector2> corners = r.getCorners();
+                    for (int i = 0; i < corners.size(); i++) {
+                        Location location = BukkitUtil.vectorToLocation(player.getWorld(), corners.get(i), player.getLocation().getY() + 0.5d);
+                        location.add(0, -0.3d, 0);
+                        bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
+                                DyeColor.values()[i].name());
+                    }
+                    for (final Vector2 vector2 : r.getOutline(false)) {
+                        Location location = BukkitUtil.vectorToLocation(player.getWorld(), vector2, player.getLocation().getY() + 0.5d);
+                        location.add(0, -0.3d, 0);
+                        bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
+                                DyeColor.BLACK.name());
+                    }
+                } break;
+                case "outline": {
+                    for (Vector2 vector2 : r.getOutline(true)) {
+                        Location location = BukkitUtil.vectorToLocation(player.getWorld(), vector2, player.getLocation().getY() + 0.5d);
+                        location.add(0, -0.3d, 0);
+                        bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
+                                DyeColor.BLACK.name());
+                    }
+                } break;
+                case "rectangles": {
+                    for (Rectangle re : r.getRectangles()) {
+                        for (Vector2 vector2 : re.getOutline()) {
+                            Location location = BukkitUtil.vectorToLocation(player.getWorld(), vector2, player.getLocation().getY() + 0.5d);
+                            location.add(0, 1.3d, 0);
+                            bukkitPlayer.showIndicator(location.getX(), location.getY(), location.getZ(),
+                                    DyeColor.values()[(int)(Math.random() * DyeColor.values().length)].name());
+                        }
+                    }
+                } break;
+                default: {
+                    player.sendMessage("Illegal \"indicators\" type: " + type);
+                    player.sendMessage("Deleting meta value");
+                    bukkitPlayer.getMeta().removeMeta("indicators");
+                } break;
+            }
+        }
     }
 
     @Override
@@ -272,7 +258,7 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
     @Override
     public void loadMeta(final UUID uuid) {
         Runnable runnable = () -> {
-            preFetched.put(uuid.toString(), Rectangular.get().getDatabase().loadPlayerMeta(uuid));
+            preFetched.put(uuid.toString(), Rectangular.getDatabase().loadPlayerMeta(uuid));
         };
         if (Bukkit.isPrimaryThread()) {
             runAsync(runnable);

@@ -3,6 +3,8 @@ package com.intellectualsites.rectangular.command.impl;
 import com.intellectualsites.commands.Command;
 import com.intellectualsites.commands.CommandDeclaration;
 import com.intellectualsites.commands.CommandInstance;
+import com.intellectualsites.rectangular.api.objects.Region;
+import com.intellectualsites.rectangular.core.Rectangle;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
 
 @CommandDeclaration(
@@ -17,7 +19,11 @@ public class Info extends Command {
         if (!player.isInRegion()) {
             player.sendMessage("@error.not_in_region");
         } else {
-            player.sendMessage("You're in region: " + player.getRegion().getId());
+            Region region = player.getRegion();
+            player.sendMessage("You're in region: " + region.getId());
+            for (Rectangle r : region.getRectangles()) {
+                player.sendMessage("R: " + r);
+            }
         }
         return true;
     }

@@ -78,7 +78,7 @@ public class RegionManager implements CoreModule {
      */
     public void addRegion(@NonNull final Region region) {
         try {
-            addRegion(region);
+            addRegionUnsafe(region);
         } catch (final Exception e) {
             e.printStackTrace();
         }
