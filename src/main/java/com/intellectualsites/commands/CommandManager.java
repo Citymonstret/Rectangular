@@ -10,6 +10,8 @@ import com.intellectualsites.commands.util.StringUtil;
 import com.intellectualsites.rectangular.parser.InstantArray;
 import com.intellectualsites.rectangular.parser.ParserResult;
 import com.intellectualsites.rectangular.parser.Parserable;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +33,10 @@ public class CommandManager {
     private final Map<String, Command> commands;
     private final Map<String, String> aliasMapping;
     private Character initialCharacter;
+
+    @Setter
+    @Getter
+    private ImmutableCollection<String> ignoreList;
 
     /**
      * Default constructor,
@@ -72,6 +78,9 @@ public class CommandManager {
     }
 
     final public void addCommand(final Command command) {
+        if (ignoreList != null && ignoreList.contains(command.getCommand())) {
+            return; // It was ignored!
+        }
         if (command.getInitialCharacter() == null) {
             command.setInitialCharacter(getInitialCharacter());
             command.getManagerOptions().setRequirePrefix(false);

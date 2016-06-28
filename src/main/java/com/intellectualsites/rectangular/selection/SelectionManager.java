@@ -13,4 +13,5 @@ public interface SelectionManager {
 
     boolean equipPlayer(RectangularPlayer player);
 
+    boolean isFinished(RectangularPlayer player);
 }

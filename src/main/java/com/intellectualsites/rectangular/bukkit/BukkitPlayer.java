@@ -16,6 +16,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -33,7 +34,6 @@ public class BukkitPlayer implements RectangularPlayer {
     @Getter
     private final PlayerEventObserver eventObserver;
 
-    @Getter
     private PlayerMeta meta;
 
     private Region topLevelRegion;
@@ -117,8 +117,13 @@ public class BukkitPlayer implements RectangularPlayer {
     }
 
     @Override
-    public void sendMessage(String msg) {
-        player.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+    public void sendMessage(String msg, Object ... arguments) {
+        String transformed = ChatColor.translateAlternateColorCodes('&', MessageFormat.format(msg, arguments));
+        if (transformed.contains("\n")) {
+            player.sendMessage(transformed.split("\n"));
+        } else {
+            player.sendMessage(transformed);
+        }
     }
 
     private Map<String, Integer> armorStandCache = new HashMap<>();

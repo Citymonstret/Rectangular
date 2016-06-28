@@ -185,7 +185,7 @@ public class RectangularPlugin extends JavaPlugin implements ServiceManager, Rec
                     bukkitPlayer.deleteIndicators();
                 }
             }
-        }, 0L, 20L);
+        }, 0L, 2L);
         // emd #temp1
     }
 

@@ -45,4 +45,5 @@ public interface Region {
 
     void setData(com.intellectualsites.rectangular.data.RegionData data);
 
+    boolean isCompiled();
 }

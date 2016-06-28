@@ -42,6 +42,8 @@ public class SimpleRegion extends RegionContainer implements Region {
 
     private ImmutableList<Vector2> corners;
 
+    private boolean compiled = false;
+
     @Setter
     @Getter
     private RegionData data;
@@ -131,6 +133,8 @@ public class SimpleRegion extends RegionContainer implements Region {
             }
             this.quadrants[3] = quadrant;
         }
+
+        this.compiled = true;
     }
 
     @Override
@@ -199,5 +203,15 @@ public class SimpleRegion extends RegionContainer implements Region {
     @Override
     public String getContainerID() {
         return "r:" + id + ";l:" + getLevel();
+    }
+
+    @Override
+    public boolean isCompiled() {
+        return this.compiled;
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(this.getId());
     }
 }

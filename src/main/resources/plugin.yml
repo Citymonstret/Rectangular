@@ -4,5 +4,5 @@ author: Citymonstret
 main: com.intellectualsites.rectangular.bukkit.RectangularPlugin
 commands:
   rectangular:
-    aliases: [rect, r]
+    aliases: [rect, r, region]
     description: The main command for the rectangular plugin

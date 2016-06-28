@@ -10,10 +10,7 @@ import com.intellectualsites.rectangular.player.PlayerMeta;
 import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.RequiredArgsConstructor;
 import org.polyjdbc.core.PolyJDBC;
-import org.polyjdbc.core.query.DeleteQuery;
-import org.polyjdbc.core.query.InsertQuery;
-import org.polyjdbc.core.query.SelectQuery;
-import org.polyjdbc.core.query.UpdateQuery;
+import org.polyjdbc.core.query.*;
 import org.polyjdbc.core.query.mapper.ObjectMapper;
 import org.polyjdbc.core.schema.SchemaInspector;
 import org.polyjdbc.core.schema.SchemaManager;
@@ -172,6 +169,21 @@ public abstract class RectangularDB {
         return new PlayerMeta(map);
     };
 
+    public Region createRegion(String uuid, String containerId, Rectangle initialRectangle) {
+        Region region = createRegionAndFetch(uuid, containerId);
+        addRectangle(region.getId(), initialRectangle);
+        region.setRectangles(Collections.singleton(initialRectangle));
+        return region;
+    }
+
+    public void addRectangle(int regionId, Rectangle rectangle) {
+        InsertQuery insertQuery = getPolyJDBC().query().insert().into(getRectangleTableName())
+                .value("region_region_id", regionId).value("minX", rectangle.getMin().getX())
+                .value("maxX", rectangle.getMax().getX()).value("minY", rectangle.getMin().getY())
+                .value("maxY", rectangle.getMax().getY());
+        getPolyJDBC().simpleQueryRunner().insert(insertQuery);
+    }
+
     public Region createRegionAndFetch(String uuid, String container_id) {
         String randomUUID = UUID.randomUUID().toString().substring(0, 32); // Used to fetch the created region
         InsertQuery query = getPolyJDBC().query().insert().into(getMainTableName())
@@ -191,7 +203,7 @@ public abstract class RectangularDB {
         InsertQuery createMeta = getPolyJDBC().query().insert().into(getRegionMetaTableName())
                 .value("region_region_id", regionID).value("mkey", "owner").value("value", uuid);
         getPolyJDBC().simpleQueryRunner().insert(createMeta);
-        Region region = new SimpleRegion(regionID, 0, randomUUID);
+        Region region = new SimpleRegion(regionID, 0, container_id);
         region.setData(loadRegionData(regionID));
         return region;
     }
@@ -215,10 +227,14 @@ public abstract class RectangularDB {
     public  void removePlayerMeta(String uuid, String key) {
         DeleteQuery query = getPolyJDBC().query().delete().from(getPlayerMetaTableName())
                 .where("uuid = :uniqueId AND mkey = :ukey").withArgument("uniqueId", uuid).withArgument("ukey", key);
+
+        QueryRunner runner = getPolyJDBC().queryRunner();
         try {
-            getPolyJDBC().queryRunner().delete(query);
+            runner.delete(query);
+        } catch (final Exception e) {
+            e.printStackTrace();
         } finally {
-            getPolyJDBC().queryRunner().close();
+            runner.close();
         }
     }
 

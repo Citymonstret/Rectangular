@@ -77,20 +77,10 @@ public class RegionManager implements CoreModule {
      * @param region Region to add, or update
      */
     public void addRegion(@NonNull final Region region) {
-        if (!idMapping.containsKey(region.getContainerID())) {
-            idMapping.put(region.getContainerID(), region.getId());
-        }
-        if (!regionMap.containsKey(region.getId())) {
-            regionMap.put(region.getId(), region);
-        }
-        if (region.getOwningContainer().startsWith("w:")) {
-            ((WorldManager) containerManager.getContainerFactory('w')).getWorldContainers().get(region.getOwningContainer()).compileQuadrants(region);
-        } else {
-            try {
-                ((RegionContainer) regionMap.get(idMapping.get(region.getOwningContainer()))).compileQuadrants(region);
-            } catch (final Exception e) {
-                e.printStackTrace(); // TODO: Fix
-            }
+        try {
+            addRegion(region);
+        } catch (final Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -184,5 +174,24 @@ public class RegionManager implements CoreModule {
             return null;
         }
         return regionMap.get(i);
+    }
+
+    public void addRegionUnsafe(Region region) throws Exception {
+        if (!region.isCompiled()) {
+            region.compile();
+        }
+
+        if (!idMapping.containsKey(region.getContainerID())) {
+            idMapping.put(region.getContainerID(), region.getId());
+        }
+        if (!regionMap.containsKey(region.getId())) {
+            regionMap.put(region.getId(), region);
+        }
+
+        if (region.getOwningContainer().startsWith("w:")) {
+            ((WorldManager) containerManager.getContainerFactory('w')).getWorldContainers().get(region.getOwningContainer().replace("w:", "")).compileQuadrants(region);
+        } else {
+            ((RegionContainer) regionMap.get(idMapping.get(region.getOwningContainer()))).compileQuadrants(region);
+        }
     }
 }

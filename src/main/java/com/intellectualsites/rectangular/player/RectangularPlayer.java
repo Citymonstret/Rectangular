@@ -23,7 +23,7 @@ public interface RectangularPlayer extends CommandCaller<RectangularPlayer> {
 
     void resetRegionCache();
 
-    void sendMessage(String msg);
+    void sendMessage(String msg, Object ... arguments);
 
     void showIndicator(double x, double y, double z, String colour);
 
@@ -47,7 +47,7 @@ public interface RectangularPlayer extends CommandCaller<RectangularPlayer> {
     }
 
     @Override
-    default void message(String message) {
-        this.sendMessage(message);
+    default void message(String message, Object ... arguments) {
+        this.sendMessage(message, arguments);
     }
 }

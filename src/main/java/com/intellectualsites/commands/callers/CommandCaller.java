@@ -7,7 +7,7 @@ import com.intellectualsites.rectangular.parser.Parserable;
 
 public interface CommandCaller<T> {
 
-    void message(String message);
+    void message(String message, Object ... arguments);
 
     T getSuperCaller();
 

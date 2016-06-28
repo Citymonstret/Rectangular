@@ -1,5 +1,6 @@
 package com.intellectualsites.rectangular;
 
+import com.google.common.collect.ImmutableSet;
 import com.intellectualsites.commands.Command;
 import com.intellectualsites.rectangular.command.RectangularCommandManager;
 import com.intellectualsites.rectangular.command.impl.*;
@@ -51,11 +52,16 @@ public final class Rectangular {
     private RectangularDB database;
 
     private Rectangular(final ServiceManager provider) {
+        // This will be used later
+        // TODO Use this shit
+        ImmutableSet<String> ignoredCommands = ImmutableSet.of();
+        commandManager.setIgnoreList(ignoredCommands);
+        // Add all commands, the ignored ones will not be added
         commandManager.createCommand(new Info());
         commandManager.createCommand(new Test());
         commandManager.createCommand(new SetMeta());
         commandManager.createCommand(new Wand());
-
+        commandManager.createCommand(new Create());
         commandManager.addCommand(new Help());
 
         // Setup the service manager
