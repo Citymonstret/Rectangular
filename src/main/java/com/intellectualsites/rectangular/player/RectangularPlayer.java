@@ -4,6 +4,7 @@ import com.intellectualsites.commands.callers.CommandCaller;
 import com.intellectualsites.rectangular.api.objects.Region;
 import com.intellectualsites.rectangular.core.WorldContainer;
 import com.intellectualsites.rectangular.item.Item;
+import com.intellectualsites.rectangular.vector.Vector2;
 
 import java.util.UUID;
 
@@ -51,4 +52,6 @@ public interface RectangularPlayer extends CommandCaller<RectangularPlayer> {
     default void message(String message, Object ... arguments) {
         this.sendMessage(message, arguments);
     }
+
+    Vector2 getLocation();
 }

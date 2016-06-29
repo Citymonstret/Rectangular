@@ -256,6 +256,17 @@ public class SimpleRegion extends RegionContainer implements Region {
     }
 
     @Override
+    public int getRectangle(Vector2 location) {
+        final Quadrant currentQuadrant = Quadrant.findQuadrant(quadrants, midX, midY, location);
+        for (final int rectangleID : currentQuadrant.getIds()) {
+            if (this.rectangles[rectangleID].isInside(location)) {
+                return rectangleID;
+            }
+        }
+        return -1;
+    }
+
+    @Override
     public String toString() {
         return Integer.toString(this.getId());
     }

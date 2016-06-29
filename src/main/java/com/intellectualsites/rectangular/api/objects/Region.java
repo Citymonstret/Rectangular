@@ -52,4 +52,6 @@ public interface Region {
     boolean isExpandableTo(Rectangle r2);
 
     Rectangle isExceeding(Rectangle r2);
+
+    int getRectangle(Vector2 location);
 }

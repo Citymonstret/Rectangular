@@ -11,6 +11,7 @@ import com.intellectualsites.rectangular.parser.Parserable;
 import com.intellectualsites.rectangular.player.PlayerEventObserver;
 import com.intellectualsites.rectangular.player.PlayerMeta;
 import com.intellectualsites.rectangular.player.RectangularPlayer;
+import com.intellectualsites.rectangular.vector.Vector2;
 import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
@@ -155,6 +156,11 @@ public class BukkitPlayer implements RectangularPlayer {
     @Override
     public PlayerMeta getMeta() {
         return meta;
+    }
+
+    @Override
+    public Vector2 getLocation() {
+        return BukkitUtil.locationToVector(player.getLocation());
     }
 
     public static final int INDICATOR_MAX_CHUNKS = 5;
