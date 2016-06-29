@@ -28,6 +28,11 @@ public class Rectangle {
         this(new Vector2(), new Vector2());
     }
 
+    public Rectangle(int x1, int y1, int x2, int y2) {
+        this.min = new Vector2(x1, y1);
+        this.max = new Vector2(x2, y2);
+    }
+
     public boolean isInside(@NonNull final Vector2 v2) {
         return v2.getX() >= min.getX() && v2.getX() <= max.getX()
                 && v2.getY() >= min.getY() && v2.getY() <= max.getY();
@@ -69,6 +74,15 @@ public class Rectangle {
         return new Area(new java.awt.Rectangle(getMin().getX() - min.getX(),
                 getMin().getY() - min.getY(), getMax().getX() - getMin().getX(),
                 getMax().getY() - getMin().getY()));
+    }
+
+    public Vector2[] getCorners() {
+        return new Vector2[] {
+                max.clone(),
+                new Vector2(max.getX(), min.getY()),
+                min.clone(),
+                new Vector2(min.getX(), max.getY())
+        };
     }
 
     @Override

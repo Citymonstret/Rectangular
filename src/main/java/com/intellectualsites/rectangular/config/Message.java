@@ -22,6 +22,7 @@ public enum Message {
     INFO_CREATED_REGION("&6Created region with ID: &e{0}"),
     INFO_ADDING_TO_MANAGER("&6Attempting to register the region"),
     INFO_SUCCESS("&6&lSuccess!"),
+    INFO_BOUNDS_WERE_ADJUSTED("&6The selection was modified to not overlap the region"),
 
     HELP_HEADER("&c&l// &6Page: &e{0}&c/&e{1}"),
     HELP_FOOTER("null"),
@@ -43,7 +44,8 @@ public enum Message {
         return "@" + this.toString();
     }
 
-    public void send(CommandCaller caller, Object ... args) {
+    public boolean send(CommandCaller caller, Object ... args) {
         caller.message(Rectangular.get().getMessageManager().getMessage(toString()), args);
+        return true;
     }
 }

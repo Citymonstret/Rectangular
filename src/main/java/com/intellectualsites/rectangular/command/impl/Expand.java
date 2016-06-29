@@ -33,36 +33,39 @@ public class Expand extends Command {
                     .getSelectionManager().getSelection(player);
             final Region region = instance.getValue("region", Region.class);
             if (!region.isExpandableTo(rectangle)) {
-                Message.ERROR_BOUNDS_NOT_SHARING_EDGE.send(player);
-            } else {
-                Rectangle copy = new Rectangle();
-                copy.copyFrom(rectangle);
-                copy.shrink(1);
-                if (region.overlaps(copy)) {
-                    Message.ERROR_BOUNDS_INSIDE_REGION.send(player);
+                if (region.isExceeding(rectangle) == null) {
+                    return Message.ERROR_BOUNDS_NOT_SHARING_EDGE.send(player);
                 } else {
-                    List<Region> overlaps = new ArrayList<>(Rectangular.getRegionManager().overlaps(player.getWorld(), rectangle));
-                    overlaps.remove(region); // Make sure that we're not testing for the current region
-                    if (!overlaps.isEmpty()) {
-                        Message.ERROR_BOUNDS_OVERLAPPING.send(player, StringUtils.join(overlaps, ","));
-                    } else {
-                        // Yay, everything is fine!
-                        ((RectangularRunnable) () -> {
-                            try {
-                                Rectangular.getDatabase().addRectangle(region.getId(), rectangle);
-                                List<Rectangle> rectangles = new ArrayList<>();
-                                rectangles.addAll(Arrays.asList(region.getRectangles()));
-                                rectangles.add(rectangle);
-                                region.setRectangles(rectangles);
-                                region.compile();
-                                Rectangular.getRegionManager().addRegionUnsafe(region);
-                                Message.INFO_SUCCESS.send(player);
-                            } catch (final Exception e) {
-                                player.sendMessage("Something went wrong when adding the rectangle");
-                                e.printStackTrace();
-                            }
-                        }).runAsync();
-                    }
+                    Message.INFO_BOUNDS_WERE_ADJUSTED.send(player);
+                }
+            }
+            Rectangle copy = new Rectangle();
+            copy.copyFrom(rectangle);
+            copy.shrink(1);
+            if (region.overlaps(copy)) {
+                Message.ERROR_BOUNDS_INSIDE_REGION.send(player);
+            } else {
+                List<Region> overlaps = new ArrayList<>(Rectangular.getRegionManager().overlaps(player.getWorld(), rectangle));
+                overlaps.remove(region); // Make sure that we're not testing for the current region
+                if (!overlaps.isEmpty()) {
+                    Message.ERROR_BOUNDS_OVERLAPPING.send(player, StringUtils.join(overlaps, ","));
+                } else {
+                    // Yay, everything is fine!
+                    ((RectangularRunnable) () -> {
+                        try {
+                            Rectangular.getDatabase().addRectangle(region.getId(), rectangle);
+                            List<Rectangle> rectangles = new ArrayList<>();
+                            rectangles.addAll(Arrays.asList(region.getRectangles()));
+                            rectangles.add(rectangle);
+                            region.setRectangles(rectangles);
+                            region.compile();
+                            Rectangular.getRegionManager().addRegionUnsafe(region);
+                            Message.INFO_SUCCESS.send(player);
+                        } catch (final Exception e) {
+                            player.sendMessage("Something went wrong when adding the rectangle");
+                            e.printStackTrace();
+                        }
+                    }).runAsync();
                 }
             }
         } else {

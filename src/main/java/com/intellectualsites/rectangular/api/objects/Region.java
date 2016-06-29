@@ -50,4 +50,6 @@ public interface Region {
     boolean overlaps(Rectangle r2);
 
     boolean isExpandableTo(Rectangle r2);
+
+    Rectangle isExceeding(Rectangle r2);
 }

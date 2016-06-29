@@ -10,6 +10,7 @@ import lombok.NonNull;
  *
  * @author Citymonstret
  */
+@SuppressWarnings("unused")
 public class Vector2 {
 
     @Getter
@@ -67,6 +68,14 @@ public class Vector2 {
 
     public void set(final int x, final int y) {
         this.x = x;
+        this.y = y;
+    }
+
+    public void setX(final int x) {
+        this.x = x;
+    }
+
+    public void setY(final int y) {
         this.y = y;
     }
 
@@ -134,6 +143,10 @@ public class Vector2 {
         this.x /= a;
         this.y /= a;
         return this;
+    }
+
+    final public ImmutableVector2 makeImmutable() {
+        return new ImmutableVector2(this);
     }
 
     public double getAngle(Vector2 target) {

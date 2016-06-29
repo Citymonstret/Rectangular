@@ -232,6 +232,30 @@ public class SimpleRegion extends RegionContainer implements Region {
     }
 
     @Override
+    public Rectangle isExceeding(Rectangle r2) {
+        Vector2[] r2c = r2.getCorners();
+        for (Rectangle rectangle : rectangles) {
+            boolean r2c0 = rectangle.isInside(r2c[0]);
+            boolean r2c1 = rectangle.isInside(r2c[1]);
+            boolean r2c2 = rectangle.isInside(r2c[2]);
+            boolean r2c3 = rectangle.isInside(r2c[3]);
+            if (r2c0 && r2c1 && !r2c2 && !r2c3) {
+                r2.getMax().setX(rectangle.getMin().getX());
+            } else if (r2c1 && r2c2 && !r2c0 && !r2c3) {
+                r2.getMin().setY(rectangle.getMax().getY());
+            } else if (r2c2 && r2c3 && !r2c0 && !r2c1) {
+                r2.getMin().setX(rectangle.getMax().getX());
+            } else if (r2c3 && r2c0 && !r2c2 && !r2c1) {
+                r2.getMax().setY(rectangle.getMin().getY());
+            } else {
+                continue;
+            }
+            return r2;
+        }
+        return null;
+    }
+
+    @Override
     public String toString() {
         return Integer.toString(this.getId());
     }
